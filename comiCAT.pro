@@ -4,7 +4,15 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 CONFIG += c++17
 
-#DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
+LIBS += \
+    -L/opt/homebrew/Cellar/tesseract/5.3.4_1/lib -ltesseract \
+    -L/opt/homebrew/Cellar/libarchive/3.7.4/lib -larchive \
+    -L/opt/homebrew/Cellar/leptonica/1.84.1/lib -lleptonica \
+    -lcurl
+
+INCLUDEPATH += \
+    /opt/homebrew/Cellar/tesseract/5.3.4_1/include \
+    /opt/homebrew/Cellar/leptonica/1.84.1/include
 
 SOURCES += \
     main.cpp \
@@ -12,9 +20,6 @@ SOURCES += \
 
 HEADERS += \
     mainwindow.h
-
-FORMS += \
-    mainwindow.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

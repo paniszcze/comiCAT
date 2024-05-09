@@ -3,11 +3,9 @@
 
 #include <QMainWindow>
 
-QT_BEGIN_NAMESPACE
-namespace Ui {
-class MainWindow;
-}
-QT_END_NAMESPACE
+#include <tesseract/baseapi.h>
+#include <leptonica/allheaders.h>
+#include <leptonica/pix_internal.h>
 
 class MainWindow : public QMainWindow
 {
@@ -16,8 +14,5 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
-
-private:
-    Ui::MainWindow *ui;
 };
 #endif // MAINWINDOW_H
