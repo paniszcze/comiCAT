@@ -1,0 +1,11 @@
+<RCC>
+    <qresource prefix="/">
+        <file>resources/icons/erase.svg</file>
+        <file>resources/icons/hand.svg</file>
+        <file>resources/icons/merge.svg</file>
+        <file>resources/icons/select-direct.svg</file>
+        <file>resources/icons/select.svg</file>
+        <file>resources/icons/split.svg</file>
+        <file>resources/icons/zoom.svg</file>
+    </qresource>
+</RCC>
