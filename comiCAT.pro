@@ -11,22 +11,37 @@ LIBS += \
     -lcurl
 
 INCLUDEPATH += \
+    ./src \
     /opt/homebrew/Cellar/tesseract/5.3.4_1/include \
     /opt/homebrew/Cellar/leptonica/1.84.1/include
 
 SOURCES += \
-    main.cpp \
-    mainwindow.cpp
+    src/main.cpp \
+    src/mainwindow.cpp \
+    src/page.cpp \
+    src/pageview.cpp \
+    src/reader.cpp \
+    src/texteditdelegate.cpp \
+    src/translationeditor.cpp \
+    src/translationlist.cpp \
+    src/translationrect.cpp \
+    src/translationsmodel.cpp
 
 HEADERS += \
-    mainwindow.h
+    src/mainwindow.h \
+    src/page.h \
+    src/pageview.h \
+    src/reader.h \
+    src/texteditdelegate.h \
+    src/translationeditor.h \
+    src/translationlist.h \
+    src/translationrect.h \
+    src/translationsmodel.h
 
-RESOURCES += resources.qrc
+RESOURCES += \
+    resources.qrc
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
-
-RESOURCES += \
-    resources.qrc

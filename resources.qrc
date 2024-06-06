@@ -7,5 +7,7 @@
         <file>resources/icons/select.svg</file>
         <file>resources/icons/split.svg</file>
         <file>resources/icons/zoom.svg</file>
+        <file>resources/icons/add.svg</file>
+        <file>resources/icons/settings.svg</file>
     </qresource>
 </RCC>
