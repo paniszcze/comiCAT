@@ -150,6 +150,10 @@ void MainWindow::openFile()
 void MainWindow::createPageView()
 {
     pageView = new PageView(this);
+    pageView->setStyleSheet("QGraphicsView {"
+                            "border: none; outline: none;"
+                            "background-color: white;"
+                            "}");
 }
 
 void MainWindow::createEditPane()

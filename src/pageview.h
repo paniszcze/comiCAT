@@ -10,10 +10,11 @@
 #include <QPixmap>
 #include <QWidget>
 
+#include "page.h"
 #include "reader.h"
 #include "translationrect.h"
 
-class PageView : public QWidget
+class PageView : public QGraphicsView
 {
     Q_OBJECT
 
@@ -21,8 +22,7 @@ public:
     PageView(QWidget *parent = nullptr);
     ~PageView();
 
-    QGraphicsView *mPageView;
-    QGraphicsScene *mPage;
+    Page *mPage;
     Reader *mReader;
 
     void loadImg(QString filename, QStandardItemModel *translations);

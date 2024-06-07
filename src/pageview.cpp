@@ -1,19 +1,14 @@
 #include "pageview.h"
 
 PageView::PageView(QWidget *parent)
-    : QWidget{parent}
+    : QGraphicsView(parent)
 {
     mReader = new Reader();
-    mPage = new QGraphicsScene();
-    mPageView = new QGraphicsView(mPage);
-    setStyleSheet("QGraphicsView {"
-                  "border: none; outline: none;"
-                  "background-color: white;"
-                  "}");
+    mPage = new Page();
+    setScene(mPage);
 
-    QHBoxLayout *layout = new QHBoxLayout(this);
-    layout->setContentsMargins(0, 0, 0, 0);
-    layout->addWidget(mPageView);
+    grabGesture(Qt::PinchGesture);
+    setAttribute(Qt::WA_AcceptTouchEvents);
 }
 
 PageView::~PageView()
@@ -25,10 +20,11 @@ void PageView::loadImg(QString filename, QStandardItemModel *translations)
 {
     QPixmap img = QPixmap(filename);
     QGraphicsPixmapItem *imgItem = mPage->addPixmap(img);
-    mPageView->fitInView(imgItem, Qt::KeepAspectRatio);
+    fitInView(imgItem, Qt::KeepAspectRatio);
+
     QList<QRect> resultRecs = mReader->readImg(filename, translations);
 
     for (auto rect : resultRecs) {
-        mPage->addRect(rect, QPen(Qt::magenta, 3));
+        mPage->addItem(new TranslationRect{rect});
     }
 }
