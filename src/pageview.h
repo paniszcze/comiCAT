@@ -1,6 +1,7 @@
 #ifndef PAGEVIEW_H
 #define PAGEVIEW_H
 
+#include <QDebug>
 #include <QEvent>
 #include <QGestureEvent>
 #include <QGraphicsPixmapItem>
@@ -25,7 +26,7 @@ public:
     PageView(QWidget *parent = nullptr);
     ~PageView();
 
-    void loadImg(QString filename, QStandardItemModel *translations);
+    void loadImg(QString filepath, QStandardItemModel *translations);
     bool event(QEvent *event) override;
     bool gestureEvent(QGestureEvent *event);
     void setScaleValue(qreal factor);
@@ -45,6 +46,9 @@ public:
     Reader *reader;
 
 private:
+    QString currentPath;
+    QImage *currentImage;
+    QGraphicsPixmapItem *pixmapItem{nullptr};
     qreal scaleValue = 1.0;
 };
 

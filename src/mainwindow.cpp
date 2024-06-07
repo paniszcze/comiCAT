@@ -76,6 +76,9 @@ void MainWindow::createMenuBar()
     mFileMenu->addAction(tr("Close", "MenuBar_File"));
     mFileMenu->addAction(tr("Quit", "MenuBar_File"));
 
+    // TODO:
+    // View->Fit in, Zoom in, Zoom out, Show/hide rects
+
     setMenuBar(mMenuBar);
 }
 

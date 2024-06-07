@@ -20,16 +20,32 @@ PageView::~PageView()
     delete reader;
 }
 
-void PageView::loadImg(QString filename, QStandardItemModel *translations)
+void PageView::loadImg(QString filepath, QStandardItemModel *translations)
 {
-    QPixmap img = QPixmap(filename);
-    QGraphicsPixmapItem *imgItem = page->addPixmap(img);
-    fitInView(imgItem, Qt::KeepAspectRatio);
+    if (filepath == currentPath || !scene()) {
+        return;
+    }
 
-    QList<QRect> resultRecs = reader->readImg(filename, translations);
+    if (currentImage) {
+        delete currentImage;
+        currentImage = nullptr;
+        translations->removeRows(0, translations->rowCount());
+    }
 
-    for (auto rect : resultRecs) {
-        page->addItem(new TranslationRect{rect});
+    currentImage = new QImage(filepath);
+    if (currentImage) {
+        currentPath = filepath;
+        scene()->clear();
+
+        pixmapItem = scene()->addPixmap(QPixmap(filepath));
+        pixmapItem->setTransformationMode(Qt::SmoothTransformation);
+        setSceneRect(pixmapItem->boundingRect());
+        fitInView(pixmapItem, Qt::KeepAspectRatio);
+
+        QList<QRect> resultRecs = reader->readImg(filepath, translations);
+        for (auto rect : resultRecs) {
+            scene()->addItem(new TranslationRect{rect});
+        }
     }
 }
 
