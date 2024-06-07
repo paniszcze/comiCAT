@@ -6,12 +6,16 @@ TranslationList::TranslationList(QWidget *parent,
 {
     setObjectName("TranslationList");
     setStyleSheet(
-        "QWidget#TranslationList {border-radius: 4; border: 1 solid #e0e0e0;}"
+        "QWidget#TranslationList {border-radius: 4; border: 1px solid #e0e0e0;}"
+        "QHeaderView {background-color: white; color:#5c5c5c;}"
+        "QHeaderView::section {background-color: white;"
+        "border: 0; border-bottom: 1px solid #e0e0e0; padding-bottom: 4px;}"
         "QComboBox {font-size: 12px; color: #3c3c3c;}"
+        "QScrollBar::handle {background-color: white;}"
         "QLabel#Translations {padding-left: 1px;}"
         "QLabel#StatusLabel {color: #5c5c5c;font-size: 11px;}"
-        "QTableView {font-size: 11px;}"
-        "QTableView::item {border: 0px; padding: 4px 0;}");
+        "QTableView {border: 0; background-color: white; font-size: 11px;}"
+        "QTableView::item {border-bottom: 1px solid #e0e0e0; padding: 4px 0;}");
 
     QLabel *title = new QLabel("Translations");
     title->setObjectName("Translations");
@@ -24,9 +28,9 @@ TranslationList::TranslationList(QWidget *parent,
     translationList = new QTableView;
 
     // selection behaviour
-    translationList->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    translationList->setSelectionBehavior(QAbstractItemView::SelectRows);
     translationList->setSelectionMode(QAbstractItemView::SingleSelection);
+    translationList->setSelectionBehavior(QAbstractItemView::SelectRows);
+    translationList->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
     // drag'n'drop behaviour
     translationList->setDragEnabled(true);
@@ -43,6 +47,7 @@ TranslationList::TranslationList(QWidget *parent,
     translationList->verticalHeader()->setSectionResizeMode(
         QHeaderView::ResizeToContents);
     translationList->verticalHeader()->setVisible(false);
+    translationList->setShowGrid(false);
 
     QHBoxLayout *header = new QHBoxLayout();
     header->addWidget(title, 1, Qt::AlignLeft);

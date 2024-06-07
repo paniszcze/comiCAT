@@ -14,6 +14,7 @@ public:
                               int column,
                               const QModelIndex &parent) override;
     virtual Qt::DropActions supportedDropActions() const override;
+    virtual Qt::ItemFlags flags(const QModelIndex &index) const override;
 };
 
 #endif // TRANSLATIONSMODEL_H

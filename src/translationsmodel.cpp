@@ -22,10 +22,17 @@ bool TranslationsModel::dropMimeData(const QMimeData *data,
         row = rowCount();
     }
 
-    return QAbstractItemModel::dropMimeData(data, action, row, 0, parent);
+    return QStandardItemModel::dropMimeData(data, action, row, 0, parent);
 }
 
 Qt::DropActions TranslationsModel::supportedDropActions() const
 {
     return Qt::MoveAction;
+}
+
+Qt::ItemFlags TranslationsModel::flags(const QModelIndex &index) const
+{
+    return index.isValid()
+               ? (QStandardItemModel::flags(index) & ~Qt::ItemIsDropEnabled)
+               : (QStandardItemModel::flags(index) | Qt::ItemIsDropEnabled);
 }
