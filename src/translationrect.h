@@ -2,21 +2,19 @@
 #define TRANSLATIONRECT_H
 
 #include <QGraphicsRectItem>
-#include <QGraphicsScene>
+#include <QPainter>
 #include <QPen>
+#include <QStyle>
+#include <QStyleOptionGraphicsItem>
 
 class TranslationRect : public QGraphicsRectItem
 {
 public:
-    TranslationRect();
+    TranslationRect(const QRect &rect, QGraphicsItem *parent = nullptr);
 
-    void hoverEnterEvent(QGraphicsSceneHoverEvent *event);
-
-    void activate();
-    void deactivate();
-
-private:
-    QGraphicsScene *scene;
+    void paint(QPainter *painter,
+               const QStyleOptionGraphicsItem *option,
+               QWidget *widget);
 };
 
 #endif // TRANSLATIONRECT_H

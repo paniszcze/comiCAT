@@ -1,21 +1,21 @@
 #include "translationrect.h"
 
-TranslationRect::TranslationRect()
+TranslationRect::TranslationRect(const QRect &rect, QGraphicsItem *parent)
+    : QGraphicsRectItem(rect, parent)
 {
+    setPen(Qt::NoPen);
+    setAcceptedMouseButtons(Qt::LeftButton | Qt::RightButton);
     setAcceptHoverEvents(true);
+    setFlags(QGraphicsItem::ItemIsSelectable);
 }
 
-void TranslationRect::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
+void TranslationRect::paint(QPainter *painter,
+                            const QStyleOptionGraphicsItem *option,
+                            QWidget *widget)
 {
-    // scene->EmitItemHoverd(itemName);
-}
+    Q_UNUSED(option);
+    Q_UNUSED(widget);
 
-void TranslationRect::activate()
-{
-    setPen({Qt::green, 3});
-}
-
-void TranslationRect::deactivate()
-{
-    setPen({Qt::magenta, 3});
+    painter->setPen({isSelected() ? Qt::green : Qt::magenta, 3});
+    painter->drawRect(boundingRect());
 }
