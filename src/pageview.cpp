@@ -46,6 +46,8 @@ void PageView::loadImg(QString filepath, QStandardItemModel *translations)
         for (auto rect : resultRecs) {
             scene()->addItem(new TranslationRect{rect});
         }
+
+        emit fileOpened(filepath);
     }
 }
 

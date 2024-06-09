@@ -40,6 +40,7 @@ protected:
 
 signals:
     void scaled(qreal percent);
+    void fileOpened(QString filename);
 
 public:
     Page *page;

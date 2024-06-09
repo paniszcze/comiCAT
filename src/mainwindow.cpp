@@ -8,9 +8,6 @@ MainWindow::MainWindow(QWidget *parent)
     createStatusBar();
     createToolBar();
     createCentralWidget();
-
-    translations = new TranslationsModel(this);
-
     createPageView();
     createEditPane();
 
@@ -19,6 +16,9 @@ MainWindow::MainWindow(QWidget *parent)
     centralLayout->setSpacing(0);
     centralLayout->addWidget(pageView);
     centralLayout->addLayout(editPane);
+
+    connect(pageView, &PageView::fileOpened, this, &MainWindow::fileOpened);
+    connect(pageView, &PageView::scaled, this, &MainWindow::scaled);
 }
 
 MainWindow::~MainWindow() {}
@@ -28,6 +28,8 @@ void MainWindow::createMainWindow()
     setObjectName("MainWindow");
     setWindowTitle("comiCAT");
     resize(WINDOW_INIT_WIDTH, WINDOW_INTI_HEIGHT);
+
+    translations = new TranslationsModel(this);
 
     mOpen = new QAction("Open");
     mOpen->setShortcut(QKeySequence::Open);
@@ -54,11 +56,8 @@ void MainWindow::createCentralWidget()
     mCentralWidget = new QWidget(this);
     mCentralWidget->setObjectName("CentralWidget");
     setCentralWidget(mCentralWidget);
-    mCentralWidget->setStyleSheet("QWidget#CentralWidget {"
-                                  "background-color: white;"
-                                  "} QWidget {"
-                                  "color: #000000;"
-                                  "}");
+    mCentralWidget->setStyleSheet(
+        "QWidget#CentralWidget {background-color: white;}");
 }
 
 void MainWindow::createMenuBar()
@@ -77,26 +76,46 @@ void MainWindow::createMenuBar()
     mFileMenu->addAction(tr("Quit", "MenuBar_File"));
 
     // TODO:
-    // View->Fit in, Zoom in, Zoom out, Show/hide rects
+    // View >
+    //      Zoom In, Zoom Out, Fit on Screen, Actual Size
+    //      Show Status Bar
+    //      Show Translation Rectangles
 
     setMenuBar(mMenuBar);
 }
 
 void MainWindow::createStatusBar()
 {
-    mStatusBar = new QStatusBar(mCentralWidget);
-    mStatusBar->setObjectName("StatusBar");
-    setStatusBar(mStatusBar);
-    mStatusBar->setStyleSheet("QStatusBar#StatusBar {"
-                              "outline: none;"
-                              "border-style: solid;"
-                              "border-color: #e0e0e0;"
-                              "border-width: 1 0 0 0;"
-                              "background-color: white;"
-                              "color: #828282;"
-                              "font-size: 11px;"
-                              "}");
-    mStatusBar->showMessage("Ready!", 3000);
+    fileNameLabel = new QLabel("");
+    pageLabel = new QLabel("Page 1 of 1");
+    zoomLabel = new QLabel("Zoom: 0%");
+    finishedLabel = new QLabel("Finished: 0%");
+
+    auto separator = []() { return new QLabel("|"); };
+
+    QWidget *projectInfo = new QWidget();
+    QHBoxLayout *infoLayout = new QHBoxLayout(projectInfo);
+    infoLayout->setContentsMargins(10, 0, 0, 0);
+    infoLayout->addWidget(pageLabel);
+    infoLayout->addWidget(separator());
+    infoLayout->addWidget(zoomLabel);
+    infoLayout->addWidget(separator());
+    infoLayout->addWidget(finishedLabel);
+
+    statusBar()->addWidget(fileNameLabel);
+    statusBar()->addPermanentWidget(projectInfo);
+    statusBar()->setSizeGripEnabled(false);
+    statusBar()->setContentsMargins(6, 0, 6, 0);
+    statusBar()->setStyleSheet(
+        "QStatusBar {background-color: white; min-height: 28px;"
+        "border-top: 1px solid #e0e0e0; color: #828282; font-size: 11px;}"
+        "QLabel {color: #828282; font-size: 11px;}");
+
+    if (!isFileOpened)
+    {
+        fileNameLabel->hide();
+        projectInfo->hide();
+    }
 }
 
 void MainWindow::createToolBar()
@@ -107,19 +126,13 @@ void MainWindow::createToolBar()
     mToolBar->setMovable(false);
     mToolBar->setAllowedAreas(Qt::LeftToolBarArea);
     mToolBar->setOrientation(Qt::Vertical);
-    mToolBar->setIconSize(QSize(16, 16));
-    mToolBar->setStyleSheet("QToolBar#ToolBar {"
-                            "outline: none;"
-                            "border-style: solid;"
-                            "border-color: #e0e0e0;"
-                            "border-width: 0 1 0 0;"
-                            "padding: 8 4; background-color: white;"
-                            "} QToolBar::separator {"
-                            "background: #e0e0e0; height:1px; margin: 6;"
-                            "} QToolButton {"
-                            "width: 28; background-color: white;"
-                            "padding: 6 4; border-radius: 4;"
-                            "}");
+    mToolBar->setIconSize(QSize(ICON_SIZE, ICON_SIZE));
+    mToolBar->setStyleSheet(
+        "QToolBar#ToolBar {padding: 8 4; background-color: white;"
+        "outline: none; border-right: 1px solid #e0e0e0;}"
+        "QToolBar::separator {background: #e0e0e0; height:1px; margin: 6;}"
+        "QToolButton {width: 28; background-color: white;"
+        "padding: 6 4; border-radius: 4;}");
 
     mToolBar->addAction(mTBoxSelect);
     mToolBar->addAction(mTBoxDirectSelect);
@@ -139,24 +152,19 @@ void MainWindow::createToolBar()
 
 void MainWindow::openFile()
 {
-    QString fn
+    QString filePath
         = QFileDialog::getOpenFileName(this,
                                        tr("Open Image"),
                                        "",
                                        tr("Image Files (*.png *.jpg *.bmp)"));
-    if (!fn.isEmpty()) {
-        filename = fn;
-        pageView->loadImg(filename, translations);
-    }
+    if (!filePath.isEmpty()) { pageView->loadImg(filePath, translations); }
 }
 
 void MainWindow::createPageView()
 {
     pageView = new PageView(this);
-    pageView->setStyleSheet("QGraphicsView {"
-                            "border: none; outline: none;"
-                            "background-color: white;"
-                            "}");
+    pageView->setStyleSheet("QGraphicsView {border: none; outline: none;"
+                            "background-color: white;}");
 }
 
 void MainWindow::createEditPane()
@@ -176,4 +184,22 @@ void MainWindow::createEditPane()
     editPane->setSpacing(16);
     editPane->addWidget(translationList);
     editPane->addWidget(translationEditor);
+}
+
+void MainWindow::fileOpened(QString filePath)
+{
+    isFileOpened = true;
+
+    auto labels = statusBar()->findChildren<QWidget *>(
+        Qt::FindDirectChildrenOnly);
+    for (auto label : labels) { label->show(); }
+
+    QFileInfo fileInfo(filePath);
+    fileNameLabel->setText(fileInfo.fileName());
+}
+
+void MainWindow::scaled(qreal percent)
+{
+    QString text = "Zoom: " + QString::number(percent, 'd', 0) + "%";
+    zoomLabel->setText(text);
 }

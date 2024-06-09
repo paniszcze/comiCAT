@@ -2,8 +2,11 @@
 #define MAINWINDOW_H
 
 #include <QAction>
+#include <QCheckBox>
 #include <QDebug>
 #include <QFileDialog>
+#include <QFileInfo>
+#include <QFrame>
 #include <QGraphicsItemGroup>
 #include <QGraphicsScene>
 #include <QGraphicsView>
@@ -15,6 +18,7 @@
 #include <QMainWindow>
 #include <QMenuBar>
 #include <QPixmap>
+#include <QProgressBar>
 #include <QRadioButton>
 #include <QRect>
 #include <QSizePolicy>
@@ -30,6 +34,7 @@
 
 const int WINDOW_INIT_WIDTH = 1000;
 const int WINDOW_INTI_HEIGHT = 600;
+const int ICON_SIZE = 16;
 
 class MainWindow : public QMainWindow
 {
@@ -39,15 +44,27 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+    // main components
     QWidget *mCentralWidget;
     QMenuBar *mMenuBar;
+    QToolBar *mToolBar;
+    PageView *pageView;
+    TranslationList *translationList;
+    TranslationEditor *translationEditor;
+
+    // menus
     QMenu *mFileMenu;
     QMenu *mExportMenu;
     QMenu *mEditMenu;
     QMenu *mViewMenu;
-    QStatusBar *mStatusBar;
-    QToolBar *mToolBar;
 
+    // status bar labels
+    QLabel *fileNameLabel;
+    QLabel *pageLabel;
+    QLabel *zoomLabel;
+    QLabel *finishedLabel;
+
+    // actions
     QAction *mOpen;
     QAction *mTBoxSelect;
     QAction *mTBoxDirectSelect;
@@ -63,33 +80,27 @@ public:
 
     TranslationsModel *translations;
 
-    PageView *pageView;
-    TranslationList *translationList;
-    TranslationEditor *translationEditor;
-
     void createMainWindow();
     void createCentralWidget();
     void createMenuBar();
     void createStatusBar();
     void createToolBar();
-
     void createPageView();
     void createEditPane();
 
     void newFile();
+    void openFile();
     void saveFile();
     void saveFile(const QString& path, const bool setPath = true);
     void saveFileAs(const bool setPath = true);
     void exportTXT();
     bool closeProject();
 
-    void setFilename(const QString &fn);
-    QString getFilename() const { return filename; }
-
-private slots:
-    void openFile();
+public slots:
+    void fileOpened(QString filePath);
+    void scaled(qreal percent);
 
 private:
-    QString filename;
+    bool isFileOpened{false};
 };
 #endif // MAINWINDOW_H
