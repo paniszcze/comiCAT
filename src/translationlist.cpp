@@ -30,7 +30,7 @@ TranslationList::TranslationList(QWidget *parent,
     statusLabel->setObjectName("StatusLabel");
     statusLabel->setBuddy(statusCombo);
 
-    translationList = new QTableView;
+    translationList = new TranslationsView();
 
     // selection behaviour
     translationList->setSelectionMode(QAbstractItemView::SingleSelection);

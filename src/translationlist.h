@@ -12,6 +12,8 @@
 #include <QVBoxLayout>
 #include <QWidget>
 
+#include "translationsview.h"
+
 class TranslationList : public QWidget
 {
     Q_OBJECT
@@ -21,7 +23,7 @@ public:
                     QStandardItemModel *model = nullptr);
 
     QComboBox *statusCombo;
-    QTableView *translationList;
+    TranslationsView *translationList;
 
 private:
     void paintEvent(QPaintEvent *) override;

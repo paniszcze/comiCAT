@@ -25,7 +25,9 @@ SOURCES += \
     src/translationeditor.cpp \
     src/translationlist.cpp \
     src/translationrect.cpp \
-    src/translationsmodel.cpp
+    src/translationsmodel.cpp \
+    src/translationsview.cpp \
+    src/translationsviewstyle.cpp
 
 HEADERS += \
     src/mainwindow.h \
@@ -36,7 +38,9 @@ HEADERS += \
     src/translationeditor.h \
     src/translationlist.h \
     src/translationrect.h \
-    src/translationsmodel.h
+    src/translationsmodel.h \
+    src/translationsview.h \
+    src/translationsviewstyle.h
 
 RESOURCES += \
     resources.qrc
