@@ -21,7 +21,6 @@ SOURCES += \
     src/page.cpp \
     src/pageview.cpp \
     src/reader.cpp \
-    src/texteditdelegate.cpp \
     src/translationeditor.cpp \
     src/translationlist.cpp \
     src/translationrect.cpp \
@@ -34,7 +33,6 @@ HEADERS += \
     src/page.h \
     src/pageview.h \
     src/reader.h \
-    src/texteditdelegate.h \
     src/translationeditor.h \
     src/translationlist.h \
     src/translationrect.h \
