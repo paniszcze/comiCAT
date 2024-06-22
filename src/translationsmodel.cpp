@@ -15,14 +15,23 @@ bool TranslationsModel::dropMimeData(const QMimeData *data,
                                      int column,
                                      const QModelIndex &parent)
 {
-    Q_UNUSED(parent);
     Q_UNUSED(column);
 
     if (row == -1) {
         row = rowCount();
     }
 
-    return QStandardItemModel::dropMimeData(data, action, row, 0, parent);
+    bool ret = false;
+
+    if (canDropMimeData(data, action, row, column, parent))
+    {
+        qInfo() << "canDropMimeData" << action;
+        beginMoveRows(parent, row, row, {}, row - 1);
+        ret = QStandardItemModel::dropMimeData(data, action, row, 0, parent);
+        endMoveRows();
+    }
+
+    return ret;
 }
 
 Qt::DropActions TranslationsModel::supportedDropActions() const

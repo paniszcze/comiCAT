@@ -19,6 +19,18 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(pageView, &PageView::fileOpened, this, &MainWindow::fileOpened);
     connect(pageView, &PageView::scaled, this, &MainWindow::scaled);
+    connect(translations,
+            &TranslationsModel::rowsMoved,
+            translationList->translationList,
+            &TranslationsView::onRowsMoved);
+    connect(translations,
+            &TranslationsModel::rowsRemoved,
+            translationList->translationList,
+            &TranslationsView::onRowsRemoved);
+    connect(translations,
+            &TranslationsModel::rowsInserted,
+            translationList->translationList,
+            &TranslationsView::onRowsInserted);
 }
 
 MainWindow::~MainWindow() {}

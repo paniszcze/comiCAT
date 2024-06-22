@@ -1,6 +1,8 @@
 #ifndef TRANSLATIONSMODEL_H
 #define TRANSLATIONSMODEL_H
 
+#include <QDebug>
+#include <QModelIndex>
 #include <QStandardItemModel>
 
 class TranslationsModel : public QStandardItemModel
