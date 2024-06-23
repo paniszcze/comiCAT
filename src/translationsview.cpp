@@ -6,3 +6,8 @@ TranslationsView::TranslationsView(QWidget *parent)
 {
     setStyle(new TranslationsViewStyle(style()));
 }
+
+QModelIndexList TranslationsView::selectedIndexes() const
+{
+    return selectionModel()->selectedIndexes();
+}

@@ -11,6 +11,9 @@ class TranslationsView : public QTableView
 
 public:
     TranslationsView(QWidget *parent = nullptr);
+
+protected:
+    QModelIndexList selectedIndexes() const;
 };
 
 #endif // TRANSLATIONSVIEW_H
