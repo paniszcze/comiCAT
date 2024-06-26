@@ -19,6 +19,10 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(pageView, &PageView::fileOpened, this, &MainWindow::fileOpened);
     connect(pageView, &PageView::scaled, this, &MainWindow::scaled);
+    connect(translationList->translationList->selectionModel(),
+            &QItemSelectionModel::selectionChanged,
+            translationEditor,
+            &TranslationEditor::onSelectionChanged);
 }
 
 MainWindow::~MainWindow() {}
@@ -109,7 +113,7 @@ void MainWindow::createStatusBar()
     statusBar()->setStyleSheet(
         "QStatusBar {background-color: white; min-height: 28px;"
         "border-top: 1px solid #e0e0e0; color: #828282; font-size: 11px;}"
-        "QLabel {color: #828282; font-size: 11px;}");
+        "QLabel {color: #828282; font-size: 11px; font-weight: 300;}");
 
     if (!isFileOpened)
     {

@@ -1,20 +1,51 @@
 #include "translationeditor.h"
 
-TranslationEditor::TranslationEditor(QWidget *parent)
-    : QWidget{parent}
+TranslationEditor::TranslationEditor(QWidget *parent) :
+    QWidget{parent}, x(0), y(0), width(0), height(0)
 {
     setObjectName("TranslationEditor");
     setStyleSheet(
         "QWidget#TranslationEditor {border-radius: 4; border: 1 solid #e0e0e0;}"
-        "QPlainTextEdit {background-color: white; color: black;"
-        "border: 1 solid #e0e0e0; border-radius: 4; padding: 5px;"
-        "font-size: 13px;}"
+        "QTextEdit {padding-left: 4px; background-color: white; color: black;"
+        "selection-color: black; selection-background-color: #f2f2f2;"
+        "border: 1 solid #e0e0e0; border-radius: 4;"
+        "font-size: 13px; font-weight: 300;}"
         "QLabel {font-size: 11px; color: #5c5c5c;}"
-        "QLabel#Editor {font-size: 13px; color: black; padding-left: 1px;}"
+        "QLabel#Editor {padding-left: 1px; color: black; font-size: 13px;}"
+        "QLabel#X, QLabel#Y, QLabel#Width, QLabel#Height {color: #828282;"
+        "font-weight: 300;}"
         "QPushButton {font-size: 12px; color: #3c3c3c;}");
 
+    QVBoxLayout *layout = new QVBoxLayout(this);
+    layout->addLayout(createHeader());
+    layout->addLayout(createEditor());
+    layout->addLayout(createInfoBox());
+    setLayout(layout);
+}
+
+void TranslationEditor::onSelectionChanged(const QItemSelection &selected,
+                                           const QItemSelection &deselected)
+{
+    if (selected.isEmpty()) {
+        if (deselected.isEmpty()) return;
+
+        sourceEdit->setPlainText("");
+        targetEdit->setPlainText("");
+        setInfoDetails(QRect{});
+    } else {
+        sourceEdit->setPlainText(selected.indexes()[0].data().toString());
+        targetEdit->setPlainText(selected.indexes()[1].data().toString());
+        setInfoDetails(selected.indexes()[2].data().toRect());
+    }
+
+    updateInfoBox();
+}
+
+QHBoxLayout *TranslationEditor::createHeader()
+{
     QLabel *title = new QLabel("Editor");
     title->setObjectName("Editor");
+
     QPushButton *translateBtn = new QPushButton("Translate", this);
     QPushButton *finishBtn = new QPushButton("Finish", this);
 
@@ -24,10 +55,17 @@ TranslationEditor::TranslationEditor(QWidget *parent)
     header->addWidget(translateBtn);
     header->addWidget(finishBtn);
 
-    QPlainTextEdit *sourceEdit = new QPlainTextEdit(this);
-    QPlainTextEdit *targetEdit = new QPlainTextEdit(this);
+    return header;
+}
 
-    QSizePolicy textEditSizePolicy{QSizePolicy::Ignored, QSizePolicy::Preferred};
+QHBoxLayout *TranslationEditor::createEditor()
+{
+    sourceEdit = new QTextEdit(this);
+    sourceEdit->setAcceptRichText(false);
+    targetEdit = new QTextEdit(this);
+    targetEdit->setAcceptRichText(false);
+
+    QSizePolicy textEditSizePolicy{QSizePolicy::Ignored, QSizePolicy::Expanding};
     sourceEdit->setSizePolicy(textEditSizePolicy);
     targetEdit->setSizePolicy(textEditSizePolicy);
 
@@ -35,31 +73,50 @@ TranslationEditor::TranslationEditor(QWidget *parent)
     editor->addWidget(sourceEdit);
     editor->addWidget(targetEdit);
 
-    QLabel *xLabel = new QLabel("X");
-    QLabel *xVal = new QLabel("1145");
-    QLabel *yLabel = new QLabel("Y");
-    QLabel *yVal = new QLabel("260");
-    QLabel *widthLabel = new QLabel("Width");
-    QLabel *widthVal = new QLabel("607");
-    QLabel *heightLabel = new QLabel("Height");
-    QLabel *heightVal = new QLabel("29");
+    return editor;
+}
 
-    QHBoxLayout *tboxInfo = new QHBoxLayout();
-    tboxInfo->setSpacing(10);
-    tboxInfo->addWidget(xLabel, 0, Qt::AlignRight);
-    tboxInfo->addWidget(xVal, 0, Qt::AlignLeft);
-    tboxInfo->addWidget(yLabel, 0, Qt::AlignRight);
-    tboxInfo->addWidget(yVal, 0, Qt::AlignLeft);
-    tboxInfo->addWidget(widthLabel, 0, Qt::AlignRight);
-    tboxInfo->addWidget(widthVal, 0, Qt::AlignLeft);
-    tboxInfo->addWidget(heightLabel, 0, Qt::AlignRight);
-    tboxInfo->addWidget(heightVal, 1, Qt::AlignLeft);
+QHBoxLayout *TranslationEditor::createLabel(QLabel *&label,
+                                            int value,
+                                            QString name,
+                                            bool isLast)
+{
+    label = new QLabel(QString::number(value));
+    label->setObjectName(name);
 
-    QVBoxLayout *layout = new QVBoxLayout(this);
-    layout->addLayout(header);
-    layout->addLayout(editor);
-    layout->addLayout(tboxInfo);
-    setLayout(layout);
+    QHBoxLayout *labelLayout = new QHBoxLayout();
+    labelLayout->setSpacing(6);
+    labelLayout->addWidget(new QLabel(name), 0, Qt::AlignRight);
+    labelLayout->addWidget(label, isLast ? 1 : 0, Qt::AlignLeft);
+
+    return labelLayout;
+}
+
+QHBoxLayout *TranslationEditor::createInfoBox()
+{
+    QHBoxLayout *infoBox = new QHBoxLayout();
+    infoBox->setSpacing(20);
+    infoBox->addLayout(createLabel(xLabel, x, "X", false));
+    infoBox->addLayout(createLabel(yLabel, y, "Y", false));
+    infoBox->addLayout(createLabel(widthLabel, width, "Width", false));
+    infoBox->addLayout(createLabel(heightLabel, height, "Height", true));
+    return infoBox;
+}
+
+void TranslationEditor::updateInfoBox()
+{
+    xLabel->setText(QString::number(x));
+    yLabel->setText(QString::number(y));
+    widthLabel->setText(QString::number(width));
+    heightLabel->setText(QString::number(height));
+}
+
+void TranslationEditor::setInfoDetails(QRect rect)
+{
+    x = rect.left();
+    y = rect.top();
+    width = rect.width();
+    height = rect.height();
 }
 
 void TranslationEditor::paintEvent(QPaintEvent *)
