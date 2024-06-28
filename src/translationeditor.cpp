@@ -6,14 +6,16 @@ TranslationEditor::TranslationEditor(QWidget *parent) :
     setObjectName("TranslationEditor");
     setStyleSheet(
         "QWidget#TranslationEditor {border-radius: 4; border: 1 solid #e0e0e0;}"
-        "QTextEdit {padding-left: 4px; background-color: white; color: black;"
-        "selection-color: black; selection-background-color: #f2f2f2;"
+        "QTextEdit {padding-left: 3px; padding-right: 3px;"
         "border: 1 solid #e0e0e0; border-radius: 4;"
+        "background-color: white; color: black;"
+        "selection-color: black; selection-background-color: #f2f2f2;"
         "font-size: 13px; font-weight: 300;}"
         "QLabel {font-size: 11px; color: #5c5c5c;}"
         "QLabel#Editor {padding-left: 1px; color: black; font-size: 13px;}"
-        "QLabel#X, QLabel#Y, QLabel#Width, QLabel#Height {color: #828282;"
-        "font-weight: 300;}"
+        "QLabel#X, QLabel#Y, QLabel#Width, QLabel#Height"
+        "{color: #828282; font-weight: 300;}"
+        "QScrollBar:vertical {width: 8px; margin: 3px 1px 3px 1px;}"
         "QPushButton {font-size: 12px; color: #3c3c3c;}");
 
     QVBoxLayout *layout = new QVBoxLayout(this);

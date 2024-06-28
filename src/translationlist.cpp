@@ -18,9 +18,9 @@ TranslationList::TranslationList(QWidget *parent,
         "QTableView::item:selected {background-color: #f2f2f2;}"
         "QHeaderView {background-color: white; color:#5c5c5c;"
         "font-weight: 300;}"
-        "QHeaderView::section {background-color: white;"
+        "QHeaderView::section {height: 20px; background-color: white;"
         "border: 0; border-bottom: 1px solid #e0e0e0; padding-bottom: 4px;}"
-        "QScrollBar::handle {background-color: white;}");
+        "QScrollBar:vertical {margin: 24px 0px 0px 4px;}");
 
     QLabel *title = new QLabel("Translations");
     title->setObjectName("Translations");
