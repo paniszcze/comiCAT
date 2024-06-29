@@ -63,7 +63,7 @@ void MainWindow::createCentralWidget()
     mCentralWidget->setStyleSheet(
         "QWidget#CentralWidget {background-color: white;}"
         "QScrollBar:vertical {background: transparent; border: none;"
-        "width: 10px; margin: 4px 0px 0px 4px;}"
+        "width: 10px; margin: 4px 0px 4px 4px;}"
         "QScrollBar::handle:vertical"
         "{min-height: 40px; border-radius: 3px; background: #cfcfcf;}"
         "QScrollBar::handle:vertical:hover {background: #cfcfcf;}"
@@ -72,7 +72,7 @@ void MainWindow::createCentralWidget()
         "QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical"
         "{height: 0px; background: transparent;}"
         "QScrollBar:horizontal {background: transparent; border: none;"
-        "height: 14px; margin: 4px 0px 4px 4px;}"
+        "height: 14px; margin: 4px 4px 4px 4px;}"
         "QScrollBar::handle:horizontal"
         "{min-width: 40px; border-radius: 3px; background: #cfcfcf;}"
         "QScrollBar::handle:horizontal:hover {background: #cfcfcf;}"
