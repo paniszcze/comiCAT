@@ -1,4 +1,5 @@
 #include "pageview.h"
+#include "translationrect.h"
 
 PageView::PageView(QWidget *parent)
     : QGraphicsView(parent)
@@ -20,7 +21,7 @@ PageView::~PageView()
     delete reader;
 }
 
-void PageView::loadImg(QString filepath, QStandardItemModel *translations)
+void PageView::loadPage(QString filepath, QStandardItemModel *translations)
 {
     if (filepath == currentPath || !scene()) {
         return;
@@ -46,8 +47,6 @@ void PageView::loadImg(QString filepath, QStandardItemModel *translations)
         for (auto rect : resultRecs) {
             scene()->addItem(new TranslationRect{rect});
         }
-
-        emit fileOpened(filepath);
     }
 }
 
@@ -100,5 +99,5 @@ void PageView::setScaleValue(qreal factor)
         scaleValue *= maxv;
     }
 
-    emit scaled(scaleValue * 100);
+    emit canvasZoomChanged(scaleValue * 100);
 }

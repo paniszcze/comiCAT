@@ -13,7 +13,6 @@
 
 #include "page.h"
 #include "reader.h"
-#include "translationrect.h"
 
 const qreal MAX_SCALE = 20.0;
 const qreal MIN_SCALE = 0.03;
@@ -26,7 +25,7 @@ public:
     PageView(QWidget *parent = nullptr);
     ~PageView();
 
-    void loadImg(QString filepath, QStandardItemModel *translations);
+    void loadPage(QString filepath, QStandardItemModel *translations);
     bool event(QEvent *event) override;
     bool gestureEvent(QGestureEvent *event);
     void setScaleValue(qreal factor);
@@ -39,8 +38,7 @@ protected:
     void pinchTriggered(QPinchGesture *gesture);
 
 signals:
-    void scaled(qreal percent);
-    void fileOpened(QString filename);
+    void canvasZoomChanged(qreal percent);
 
 public:
     Page *page;
