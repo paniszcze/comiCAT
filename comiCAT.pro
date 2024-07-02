@@ -18,7 +18,6 @@ INCLUDEPATH += \
 SOURCES += \
     src/main.cpp \
     src/mainwindow.cpp \
-    src/page.cpp \
     src/pageview.cpp \
     src/reader.cpp \
     src/translationeditor.cpp \
@@ -30,7 +29,6 @@ SOURCES += \
 
 HEADERS += \
     src/mainwindow.h \
-    src/page.h \
     src/pageview.h \
     src/reader.h \
     src/translationeditor.h \

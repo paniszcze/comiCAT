@@ -7,15 +7,17 @@
 #include <QGraphicsPixmapItem>
 #include <QGraphicsScene>
 #include <QGraphicsView>
+#include <QImage>
+#include <QList>
 #include <QObject>
-#include <QPen>
+#include <QPinchGesture>
 #include <QPixmap>
+#include <QRect>
 
-#include "page.h"
 #include "reader.h"
 
-const qreal MAX_SCALE = 20.0;
-const qreal MIN_SCALE = 0.03;
+static const qreal MAX_SCALE = 20.0;
+static const qreal MIN_SCALE = 0.03;
 
 class PageView : public QGraphicsView
 {
@@ -30,24 +32,19 @@ public:
     bool gestureEvent(QGestureEvent *event);
     void setScaleValue(qreal factor);
 
-public slots:
-    void resizeEvent(QResizeEvent *event) override;
-
 protected:
-    void handleGestureEvent(QGestureEvent *gesture);
     void pinchTriggered(QPinchGesture *gesture);
 
 signals:
     void canvasZoomChanged(qreal percent);
 
 public:
-    Page *page;
     Reader *reader;
 
 private:
-    QString currentPath;
-    QImage *currentImage;
-    QGraphicsPixmapItem *pixmapItem{nullptr};
+    QString currentPath = "";
+    QImage *currentImage = nullptr;
+    QGraphicsPixmapItem *pixmapItem = nullptr;
     qreal scaleValue = 1.0;
 };
 

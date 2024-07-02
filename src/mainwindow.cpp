@@ -88,7 +88,7 @@ void MainWindow::createStatusBar()
 {
     fileNameLabel = new QLabel("");
     pageLabel = new QLabel("Page 1 of 1");
-    zoomLabel = new QLabel("Zoom: 0%");
+    zoomLabel = new QLabel("Zoom: 100%");
     finishedLabel = new QLabel("Finished: 0%");
 
     auto separator = []() { return new QLabel("|"); };

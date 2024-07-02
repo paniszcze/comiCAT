@@ -4,28 +4,21 @@
 PageView::PageView(QWidget *parent)
     : QGraphicsView(parent)
 {
-    // create OCR instance
     reader = new Reader();
 
-    // create and set graphics scene
-    page = new Page();
-    setScene(page);
-
-    // enable pinch gesture
+    setScene(new QGraphicsScene);
     grabGesture(Qt::PinchGesture);
     setAttribute(Qt::WA_AcceptTouchEvents);
 }
 
 PageView::~PageView()
 {
-    delete reader;
+    if (reader) delete reader;
 }
 
 void PageView::loadPage(QString filepath, QStandardItemModel *translations)
 {
-    if (filepath == currentPath || !scene()) {
-        return;
-    }
+    if (filepath == currentPath || !scene()) return;
 
     if (currentImage) {
         delete currentImage;
@@ -35,13 +28,27 @@ void PageView::loadPage(QString filepath, QStandardItemModel *translations)
 
     currentImage = new QImage(filepath);
     if (currentImage) {
-        currentPath = filepath;
         scene()->clear();
+        resetTransform();
+        scaleValue = 1.0;
 
-        pixmapItem = scene()->addPixmap(QPixmap(filepath));
+        currentPath = filepath;
+        pixmapItem = scene()->addPixmap(QPixmap(currentPath));
         pixmapItem->setTransformationMode(Qt::SmoothTransformation);
         setSceneRect(pixmapItem->boundingRect());
-        fitInView(pixmapItem, Qt::KeepAspectRatio);
+
+        if (pixmapItem->boundingRect().width() > width()
+            || pixmapItem->boundingRect().height() > height())
+        {
+            fitInView(pixmapItem, Qt::KeepAspectRatio);
+            scaleValue = transform().m11();
+            if (scaleValue > MAX_SCALE) {
+                resetTransform();
+                scale(MAX_SCALE, MAX_SCALE);
+                scaleValue = MAX_SCALE;
+            }
+        }
+        emit canvasZoomChanged(scaleValue * 100);
 
         QList<QRect> resultRecs = reader->readImg(filepath, translations);
         for (auto rect : resultRecs) {
@@ -52,9 +59,9 @@ void PageView::loadPage(QString filepath, QStandardItemModel *translations)
 
 bool PageView::event(QEvent *event)
 {
-    if (event->type() == QEvent::Gesture) {
+    if (event->type() == QEvent::Gesture)
         return gestureEvent(static_cast<QGestureEvent *>(event));
-    }
+
     return QGraphicsView::event(event);
 }
 
@@ -62,33 +69,23 @@ bool PageView::gestureEvent(QGestureEvent *event)
 {
     if (QGesture *pinch = event->gesture(Qt::PinchGesture))
         pinchTriggered(static_cast<QPinchGesture *>(pinch));
+
     return true;
-}
-
-void PageView::resizeEvent(QResizeEvent *event)
-{
-    return QGraphicsView::resizeEvent(event);
-}
-
-void PageView::handleGestureEvent(QGestureEvent *gesture)
-{
-    if (QGesture *pinch = gesture->gesture(Qt::PinchGesture))
-        pinchTriggered(static_cast<QPinchGesture *>(pinch));
 }
 
 void PageView::pinchTriggered(QPinchGesture *gesture)
 {
-    if (gesture->changeFlags() & QPinchGesture::ScaleFactorChanged) {
+    if (gesture->changeFlags() & QPinchGesture::ScaleFactorChanged)
         setScaleValue(gesture->scaleFactor());
-    }
 }
 
 void PageView::setScaleValue(qreal factor)
 {
+    if (currentPath.isEmpty()) return;
+
     scaleValue *= factor;
     scale(factor, factor);
 
-    // keep the zoom inbetween MIN and MAX
     if (factor < 1 && scaleValue < MIN_SCALE) {
         const qreal minv = MIN_SCALE / scaleValue;
         scale(minv, minv);
