@@ -3,6 +3,7 @@
 
 #include <QAction>
 #include <QActionGroup>
+#include <QDir>
 #include <QFileDialog>
 #include <QFileInfo>
 #include <QHBoxLayout>
@@ -80,6 +81,7 @@ public:
 
 private:
     bool isFileOpened = false;
+    QDir lastFileDialogDir;
     QAction *currCanvasAction = nullptr;
 };
 #endif // MAINWINDOW_H

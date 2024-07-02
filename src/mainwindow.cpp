@@ -1,7 +1,7 @@
 #include "mainwindow.h"
 
-MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent)
+MainWindow::MainWindow(QWidget *parent) :
+    QMainWindow(parent), lastFileDialogDir(QDir().home())
 {
     setWindowTitle("comiCAT");
     resize(WINDOW_INIT_WIDTH, WINDOW_INTI_HEIGHT);
@@ -241,14 +241,15 @@ void MainWindow::openFile()
 {
     QString filePath
         = QFileDialog::getOpenFileName(this,
-                                       tr("Open Image"),
-                                       "",
-                                       tr("Image Files (*.png *.jpg *.bmp)"));
+                                       "Open Image",
+                                       lastFileDialogDir.path(),
+                                       "Image Files (*.png *.jpg *.bmp)");
 
     if (!filePath.isEmpty()) {
         pageView->loadPage(filePath, translations);
 
         isFileOpened = true;
+        lastFileDialogDir = QDir(filePath);
         fileNameLabel->setText(QFileInfo(filePath).fileName());
 
         for (auto label :
