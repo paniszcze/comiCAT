@@ -16,32 +16,36 @@ PageView::~PageView()
     if (reader) delete reader;
 }
 
-void PageView::loadPage(QString filepath, QStandardItemModel *translations)
+void PageView::loadPage(QString filePath, QStandardItemModel *translations)
 {
-    if (filepath == currentPath || !scene()) return;
+    if (filePath == currentPath || !scene()) return;
+
+    currentImage = new QImage(filePath);
+    if (!currentImage) return;
+
+    currentPath = filePath;
+    pixmapItem = scene()->addPixmap(QPixmap(currentPath));
+    pixmapItem->setTransformationMode(Qt::SmoothTransformation);
+    setSceneRect(pixmapItem->boundingRect());
+    if (!QRectF(rect()).contains(sceneRect())) fitInWindow();
+
+    QList<QRect> resultRecs = reader->readImg(filePath, translations);
+    for (auto rect : resultRecs) scene()->addItem(new TranslationRect{rect});
+}
+
+void PageView::clearPage()
+{
+    if (!scene()) return;
+
+    resetZoom();
+    setSceneRect(rect());
+    scene()->clear();
 
     if (currentImage) {
         delete currentImage;
         currentImage = nullptr;
-        translations->removeRows(0, translations->rowCount());
     }
-
-    currentImage = new QImage(filepath);
-    if (currentImage) {
-        scene()->clear();
-        resetZoom();
-
-        currentPath = filepath;
-        pixmapItem = scene()->addPixmap(QPixmap(currentPath));
-        pixmapItem->setTransformationMode(Qt::SmoothTransformation);
-        setSceneRect(pixmapItem->boundingRect());
-        if (!QRectF(rect()).contains(sceneRect())) fitInWindow();
-
-        QList<QRect> resultRecs = reader->readImg(filepath, translations);
-        for (auto rect : resultRecs) {
-            scene()->addItem(new TranslationRect{rect});
-        }
-    }
+    currentPath = "";
 }
 
 bool PageView::event(QEvent *event)

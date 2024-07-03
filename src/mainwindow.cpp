@@ -1,7 +1,11 @@
 #include "mainwindow.h"
 
 MainWindow::MainWindow(QWidget *parent) :
-    QMainWindow(parent), lastFileDialogDir(QDir().home())
+    QMainWindow(parent),
+    isFileOpened(false),
+    currFilePath(""),
+    lastFileDialogDir(QDir().home()),
+    currCanvasAction(nullptr)
 {
     setWindowTitle("comiCAT");
     resize(WINDOW_INIT_WIDTH, WINDOW_INTI_HEIGHT);
@@ -65,7 +69,7 @@ void MainWindow::createMenuBar()
     fileMenu->addAction(tr("Save As", "MenuBar_File"));
     exportMenu = fileMenu->addMenu(tr("Export", "MenuBar_File"));
     exportMenu->addAction(tr("Export as .txt", "MenuBar_File"));
-    fileMenu->addAction(tr("Close", "MenuBar_File"));
+    fileMenu->addAction(actionClose);
     fileMenu->addAction(tr("Quit", "MenuBar_File"));
     fileMenu->addSeparator();
 
@@ -208,6 +212,11 @@ void MainWindow::createActions()
     actionOpen->setStatusTip("Open an existing file");
     connect(actionOpen, &QAction::triggered, this, &MainWindow::openFile);
 
+    actionClose = new QAction("Close");
+    actionClose->setShortcut(QKeySequence::Close);
+    actionClose->setStatusTip("Close current working file");
+    connect(actionClose, &QAction::triggered, this, &MainWindow::closeFile);
+
     actionFitInWindow = new QAction("Fit in Window");
     actionFitInWindow->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_0));
     connect(actionFitInWindow,
@@ -270,25 +279,42 @@ void MainWindow::openFile()
                                        lastFileDialogDir.path(),
                                        "Image Files (*.png *.jpg *.bmp)");
 
-    if (!filePath.isEmpty()) {
-        pageView->loadPage(filePath, translations);
+    if (filePath.isNull() || filePath == currFilePath) return;
 
-        isFileOpened = true;
-        lastFileDialogDir = QDir(filePath);
-        fileNameLabel->setText(QFileInfo(filePath).fileName());
+    if (isFileOpened) closeFile();
 
-        for (auto label :
-             statusBar()->findChildren<QWidget *>(Qt::FindDirectChildrenOnly)) {
-            label->show();
-        }
+    currFilePath = filePath;
+    lastFileDialogDir = QDir(filePath);
+    isFileOpened = true;
 
-        canvasActions->setEnabled(true);
-        actionOpenSettings->setEnabled(true);
+    pageView->loadPage(filePath, translations);
 
-        if (!currCanvasAction) {
-            canvasActions->actions().at(0)->setChecked(true);
-        }
-    }
+    fileNameLabel->setText(QFileInfo(filePath).fileName());
+    for (auto child : statusBar()->children())
+        static_cast<QWidget *>(child)->show();
+
+    canvasActions->setEnabled(true);
+    actionOpenSettings->setEnabled(true);
+    if (!currCanvasAction) currCanvasAction = canvasActions->actions().at(0);
+    currCanvasAction->setChecked(true);
+}
+
+void MainWindow::closeFile()
+{
+    if (!isFileOpened) return;
+
+    pageView->clearPage();
+    translations->removeRows(0, translations->rowCount());
+
+    for (auto child : statusBar()->children())
+        static_cast<QWidget *>(child)->hide();
+
+    currCanvasAction->setChecked(false);
+    canvasActions->setEnabled(false);
+    actionOpenSettings->setEnabled(false);
+
+    currFilePath = "";
+    isFileOpened = false;
 }
 
 void MainWindow::onCanvasZoomChanged(qreal scaleFactor)

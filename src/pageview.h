@@ -30,6 +30,7 @@ public:
     ~PageView();
 
     void loadPage(QString filepath, QStandardItemModel *translations);
+    void clearPage();
     bool event(QEvent *event) override;
     bool gestureEvent(QGestureEvent *event);
 

@@ -3,7 +3,6 @@
 
 #include <QAction>
 #include <QActionGroup>
-#include <QDebug>
 #include <QDir>
 #include <QFileDialog>
 #include <QFileInfo>
@@ -44,6 +43,7 @@ public:
 
 public slots:
     void openFile();
+    void closeFile();
     void onCanvasZoomChanged(qreal percent);
     void onCanvasActionChanged();
 
@@ -64,6 +64,7 @@ public:
     QLabel *finishedLabel;
 
     QAction *actionOpen;
+    QAction *actionClose;
 
     QAction *actionFitInWindow;
     QAction *actionActualSize;
@@ -87,8 +88,9 @@ public:
     QMenu *viewMenu;
 
 private:
-    bool isFileOpened = false;
+    bool isFileOpened;
+    QString currFilePath;
     QDir lastFileDialogDir;
-    QAction *currCanvasAction = nullptr;
+    QAction *currCanvasAction;
 };
 #endif // MAINWINDOW_H
