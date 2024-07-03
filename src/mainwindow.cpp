@@ -70,7 +70,7 @@ void MainWindow::createMenuBar()
     exportMenu = fileMenu->addMenu(tr("Export", "MenuBar_File"));
     exportMenu->addAction(tr("Export as .txt", "MenuBar_File"));
     fileMenu->addAction(actionClose);
-    fileMenu->addAction(tr("Quit", "MenuBar_File"));
+    fileMenu->addAction(actionQuit);
     fileMenu->addSeparator();
 
     editMenu = menuBar->addMenu(tr("Edit", "MenuBar"));
@@ -216,6 +216,11 @@ void MainWindow::createActions()
     actionClose->setShortcut(QKeySequence::Close);
     actionClose->setStatusTip("Close current working file");
     connect(actionClose, &QAction::triggered, this, &MainWindow::closeFile);
+
+    actionQuit = new QAction("Quit");
+    actionQuit->setShortcut(QKeySequence::Quit);
+    actionQuit->setStatusTip("Quit application");
+    connect(actionQuit, &QAction::triggered, this, &QCoreApplication::quit);
 
     actionFitInWindow = new QAction("Fit in Window");
     actionFitInWindow->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_0));

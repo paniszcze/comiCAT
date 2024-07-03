@@ -3,6 +3,7 @@
 
 #include <QAction>
 #include <QActionGroup>
+#include <QCoreApplication>
 #include <QDir>
 #include <QFileDialog>
 #include <QFileInfo>
@@ -65,6 +66,7 @@ public:
 
     QAction *actionOpen;
     QAction *actionClose;
+    QAction *actionQuit;
 
     QAction *actionFitInWindow;
     QAction *actionActualSize;
