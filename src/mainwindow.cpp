@@ -6,13 +6,13 @@ MainWindow::MainWindow(QWidget *parent) :
     setWindowTitle("comiCAT");
     resize(WINDOW_INIT_WIDTH, WINDOW_INTI_HEIGHT);
 
-    createActions();
     createCentralWidget();
+    createPageView();
+    createEditPane();
+    createActions();
     createMenuBar();
     createStatusBar();
     createToolBar();
-    createPageView();
-    createEditPane();
 
     QHBoxLayout *centralLayout = new QHBoxLayout(centralWidget);
     centralLayout->setContentsMargins(0, 0, 0, 0);
@@ -67,19 +67,22 @@ void MainWindow::createMenuBar()
     exportMenu->addAction(tr("Export as .txt", "MenuBar_File"));
     fileMenu->addAction(tr("Close", "MenuBar_File"));
     fileMenu->addAction(tr("Quit", "MenuBar_File"));
+    fileMenu->addSeparator();
 
     editMenu = menuBar->addMenu(tr("Edit", "MenuBar"));
     editMenu->addAction(tr("Undo", "MenuBar_Edit"));
     editMenu->addAction(tr("Redo", "MenuBar_Edit"));
+    editMenu->addSeparator();
 
     viewMenu = menuBar->addMenu(tr("View", "MenuBar"));
-    viewMenu->addAction(tr("Zoom In", "MenuBar_View"));
-    viewMenu->addAction(tr("Zoom Out", "MenuBar_View"));
-    viewMenu->addAction(tr("Fit on Screen", "MenuBar_View"));
-    viewMenu->addAction(tr("Actual Size", "MenuBar_View"));
+    viewMenu->addAction(actionFitInWindow);
+    viewMenu->addAction(actionActualSize);
+    viewMenu->addAction(actionZoomIn);
+    viewMenu->addAction(actionZoomOut);
     viewMenu->addSeparator();
     viewMenu->addAction(tr("Show Status Bar", "MenuBar_View"));
     viewMenu->addAction(tr("Show Translation Rectangles", "MenuBar_View"));
+    viewMenu->addSeparator();
 
     setMenuBar(menuBar);
 }
@@ -205,6 +208,28 @@ void MainWindow::createActions()
     actionOpen->setStatusTip("Open an existing file");
     connect(actionOpen, &QAction::triggered, this, &MainWindow::openFile);
 
+    actionFitInWindow = new QAction("Fit in Window");
+    actionFitInWindow->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_0));
+    connect(actionFitInWindow,
+            &QAction::triggered,
+            pageView,
+            &PageView::fitInWindow);
+
+    actionActualSize = new QAction("Actual Size");
+    actionActualSize->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_1));
+    connect(actionActualSize,
+            &QAction::triggered,
+            pageView,
+            &PageView::resetZoom);
+
+    actionZoomIn = new QAction("Zoom In");
+    actionZoomIn->setShortcut(QKeySequence::ZoomIn);
+    connect(actionZoomIn, &QAction::triggered, pageView, &PageView::zoomIn);
+
+    actionZoomOut = new QAction("Zoom Out");
+    actionZoomOut->setShortcut(QKeySequence::ZoomOut);
+    connect(actionZoomOut, &QAction::triggered, pageView, &PageView::zoomOut);
+
     actionSelect = new QAction(QIcon(":/resources/icons/select.svg"), "Select");
     actionDirectSelect = new QAction(QIcon(
                                          ":/resources/icons/select-direct.svg"),
@@ -266,8 +291,9 @@ void MainWindow::openFile()
     }
 }
 
-void MainWindow::onCanvasZoomChanged(qreal percent)
+void MainWindow::onCanvasZoomChanged(qreal scaleFactor)
 {
+    qreal percent = scaleFactor * 100;
     QString text = "Zoom: " + QString::number(percent, 'd', 0) + "%";
     zoomLabel->setText(text);
 }

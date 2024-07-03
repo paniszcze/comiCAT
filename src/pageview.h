@@ -13,11 +13,13 @@
 #include <QPinchGesture>
 #include <QPixmap>
 #include <QRect>
+#include <QRectF>
 
 #include "reader.h"
 
 static const qreal MAX_SCALE = 20.0;
 static const qreal MIN_SCALE = 0.03;
+static const qreal ZOOM_STEP = 1.09;
 
 class PageView : public QGraphicsView
 {
@@ -30,13 +32,21 @@ public:
     void loadPage(QString filepath, QStandardItemModel *translations);
     bool event(QEvent *event) override;
     bool gestureEvent(QGestureEvent *event);
-    void setScaleValue(qreal factor);
+
+public slots:
+    void fitInWindow();
+    void resetZoom();
+    void zoomIn();
+    void zoomOut();
+
+signals:
+    void canvasZoomChanged(qreal scaleFactor);
 
 protected:
     void pinchTriggered(QPinchGesture *gesture);
 
-signals:
-    void canvasZoomChanged(qreal percent);
+private:
+    void setScaleFactor(qreal factor);
 
 public:
     Reader *reader;
@@ -45,7 +55,7 @@ private:
     QString currentPath = "";
     QImage *currentImage = nullptr;
     QGraphicsPixmapItem *pixmapItem = nullptr;
-    qreal scaleValue = 1.0;
+    qreal scaleFactor = 1.0;
 };
 
 #endif // PAGEVIEW_H

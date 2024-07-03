@@ -3,6 +3,7 @@
 
 #include <QAction>
 #include <QActionGroup>
+#include <QDebug>
 #include <QDir>
 #include <QFileDialog>
 #include <QFileInfo>
@@ -63,6 +64,13 @@ public:
     QLabel *finishedLabel;
 
     QAction *actionOpen;
+
+    QAction *actionFitInWindow;
+    QAction *actionActualSize;
+    QAction *actionZoomIn;
+    QAction *actionZoomOut;
+
+    QActionGroup *canvasActions;
     QAction *actionSelect;
     QAction *actionDirectSelect;
     QAction *actionAdd;
@@ -72,7 +80,6 @@ public:
     QAction *actionMove;
     QAction *actionZoom;
     QAction *actionOpenSettings;
-    QActionGroup *canvasActions;
 
     QMenu *fileMenu;
     QMenu *exportMenu;

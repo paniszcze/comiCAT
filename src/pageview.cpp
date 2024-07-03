@@ -29,26 +29,13 @@ void PageView::loadPage(QString filepath, QStandardItemModel *translations)
     currentImage = new QImage(filepath);
     if (currentImage) {
         scene()->clear();
-        resetTransform();
-        scaleValue = 1.0;
+        resetZoom();
 
         currentPath = filepath;
         pixmapItem = scene()->addPixmap(QPixmap(currentPath));
         pixmapItem->setTransformationMode(Qt::SmoothTransformation);
         setSceneRect(pixmapItem->boundingRect());
-
-        if (pixmapItem->boundingRect().width() > width()
-            || pixmapItem->boundingRect().height() > height())
-        {
-            fitInView(pixmapItem, Qt::KeepAspectRatio);
-            scaleValue = transform().m11();
-            if (scaleValue > MAX_SCALE) {
-                resetTransform();
-                scale(MAX_SCALE, MAX_SCALE);
-                scaleValue = MAX_SCALE;
-            }
-        }
-        emit canvasZoomChanged(scaleValue * 100);
+        if (!QRectF(rect()).contains(sceneRect())) fitInWindow();
 
         QList<QRect> resultRecs = reader->readImg(filepath, translations);
         for (auto rect : resultRecs) {
@@ -76,25 +63,47 @@ bool PageView::gestureEvent(QGestureEvent *event)
 void PageView::pinchTriggered(QPinchGesture *gesture)
 {
     if (gesture->changeFlags() & QPinchGesture::ScaleFactorChanged)
-        setScaleValue(gesture->scaleFactor());
+        setScaleFactor(gesture->scaleFactor());
 }
 
-void PageView::setScaleValue(qreal factor)
+void PageView::fitInWindow()
+{
+    resetZoom();
+
+    QRectF vRect = rect();
+    QRectF sRect = sceneRect();
+    if (vRect.isEmpty() || sRect.isEmpty()) return;
+
+    qreal xratio = vRect.width() / sRect.width();
+    qreal yratio = vRect.height() / sRect.height();
+    qreal ratio = qMin(xratio, yratio);
+
+    setScaleFactor(ratio);
+    centerOn(sceneRect().center());
+}
+
+void PageView::resetZoom() { setScaleFactor(1.0 / scaleFactor); }
+
+void PageView::zoomIn() { setScaleFactor(ZOOM_STEP); }
+
+void PageView::zoomOut() { setScaleFactor(1.0 / ZOOM_STEP); }
+
+void PageView::setScaleFactor(qreal factor)
 {
     if (currentPath.isEmpty()) return;
 
-    scaleValue *= factor;
+    scaleFactor *= factor;
     scale(factor, factor);
 
-    if (factor < 1 && scaleValue < MIN_SCALE) {
-        const qreal minv = MIN_SCALE / scaleValue;
+    if (factor < 1.0 && scaleFactor < MIN_SCALE) {
+        const qreal minv = MIN_SCALE / scaleFactor;
         scale(minv, minv);
-        scaleValue *= minv;
-    } else if (factor > 1 && scaleValue > MAX_SCALE) {
-        const qreal maxv = MAX_SCALE / scaleValue;
+        scaleFactor *= minv;
+    } else if (factor > 1.0 && scaleFactor > MAX_SCALE) {
+        const qreal maxv = MAX_SCALE / scaleFactor;
         scale(maxv, maxv);
-        scaleValue *= maxv;
+        scaleFactor *= maxv;
     }
 
-    emit canvasZoomChanged(scaleValue * 100);
+    emit canvasZoomChanged(scaleFactor);
 }
