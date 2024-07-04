@@ -162,10 +162,8 @@ void MainWindow::createToolBar()
     toolBar->addWidget(spacer);
     toolBar->addAction(actionOpenSettings);
 
-    canvasActions->setEnabled(false);
-    actionOpenSettings->setEnabled(false);
-
     addToolBar(Qt::LeftToolBarArea, toolBar);
+    toolBar->setEnabled(false);
 }
 
 void MainWindow::createPageView()
@@ -198,6 +196,9 @@ void MainWindow::createEditPane()
     editPane->setSpacing(16);
     editPane->addWidget(translationList);
     editPane->addWidget(translationEditor);
+
+    translationList->setEnabled(false);
+    translationEditor->setEnabled(false);
 
     connect(translationList->translationList->selectionModel(),
             &QItemSelectionModel::selectionChanged,
@@ -292,14 +293,16 @@ void MainWindow::openFile()
     lastFileDialogDir = QDir(filePath);
     isFileOpened = true;
 
+    translationList->setEnabled(true);
+    translationEditor->setEnabled(true);
+
     pageView->loadPage(filePath, translations);
 
     fileNameLabel->setText(QFileInfo(filePath).fileName());
     for (auto child : statusBar()->children())
         static_cast<QWidget *>(child)->show();
 
-    canvasActions->setEnabled(true);
-    actionOpenSettings->setEnabled(true);
+    toolBar->setEnabled(true);
     if (!currCanvasAction) currCanvasAction = canvasActions->actions().at(0);
     currCanvasAction->setChecked(true);
 }
@@ -315,8 +318,10 @@ void MainWindow::closeFile()
         static_cast<QWidget *>(child)->hide();
 
     currCanvasAction->setChecked(false);
-    canvasActions->setEnabled(false);
-    actionOpenSettings->setEnabled(false);
+    toolBar->setEnabled(false);
+
+    translationList->setEnabled(false);
+    translationEditor->setEnabled(false);
 
     currFilePath = "";
     isFileOpened = false;
