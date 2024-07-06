@@ -1,8 +1,7 @@
 #include "translationlist.h"
 
-TranslationList::TranslationList(QWidget *parent,
-                                 QStandardItemModel *translations)
-    : QWidget{parent}
+TranslationList::TranslationList(QWidget *parent, TranslationsModel *model) :
+    QWidget(parent), translations(model)
 {
     setObjectName("TranslationList");
     setStyleSheet(
@@ -30,29 +29,29 @@ TranslationList::TranslationList(QWidget *parent,
     statusLabel->setObjectName("StatusLabel");
     statusLabel->setBuddy(statusCombo);
 
-    translationList = new TranslationsView();
+    translationsView = new TranslationsView();
 
     // selection behaviour
-    translationList->setSelectionMode(QAbstractItemView::SingleSelection);
-    translationList->setSelectionBehavior(QAbstractItemView::SelectRows);
-    translationList->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    translationsView->setSelectionMode(QAbstractItemView::SingleSelection);
+    translationsView->setSelectionBehavior(QAbstractItemView::SelectRows);
+    translationsView->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
     // drag'n'drop behaviour
-    translationList->setDragEnabled(true);
-    translationList->setDropIndicatorShown(true);
-    translationList->setDefaultDropAction(Qt::MoveAction);
-    translationList->setDragDropMode(QAbstractItemView::InternalMove);
-    translationList->setDragDropOverwriteMode(false);
+    translationsView->setDragEnabled(true);
+    translationsView->setDropIndicatorShown(true);
+    translationsView->setDefaultDropAction(Qt::MoveAction);
+    translationsView->setDragDropMode(QAbstractItemView::InternalMove);
+    translationsView->setDragDropOverwriteMode(false);
 
-    translationList->setModel(translations);
-    translationList->hideColumn(2);
-    translationList->horizontalHeader()->setSectionResizeMode(
+    translationsView->setModel(translations);
+    translationsView->hideColumn(2);
+    translationsView->horizontalHeader()->setSectionResizeMode(
         QHeaderView::Stretch);
-    translationList->horizontalHeader()->setHighlightSections(false);
-    translationList->verticalHeader()->setSectionResizeMode(
+    translationsView->horizontalHeader()->setHighlightSections(false);
+    translationsView->verticalHeader()->setSectionResizeMode(
         QHeaderView::ResizeToContents);
-    translationList->verticalHeader()->setVisible(false);
-    translationList->setShowGrid(false);
+    translationsView->verticalHeader()->setVisible(false);
+    translationsView->setShowGrid(false);
 
     QHBoxLayout *header = new QHBoxLayout();
     header->addWidget(title, 1, Qt::AlignLeft);
@@ -61,9 +60,18 @@ TranslationList::TranslationList(QWidget *parent,
 
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->addLayout(header);
-    layout->addWidget(translationList);
+    layout->addWidget(translationsView);
 
     setLayout(layout);
+    setEnabled(false);
+}
+
+void TranslationList::onItemNeedsUpdate(QModelIndex itemIndex,
+                                        QString updatedText)
+{
+    if (translationsView->selectionModel()->isRowSelected(itemIndex.row(),
+                                                          QModelIndex()))
+        translations->setData(itemIndex, updatedText);
 }
 
 void TranslationList::paintEvent(QPaintEvent *)

@@ -12,6 +12,7 @@
 #include <QVBoxLayout>
 #include <QWidget>
 
+#include "translationsmodel.h"
 #include "translationsview.h"
 
 class TranslationList : public QWidget
@@ -20,13 +21,18 @@ class TranslationList : public QWidget
 
 public:
     TranslationList(QWidget *parent = nullptr,
-                    QStandardItemModel *model = nullptr);
+                    TranslationsModel *model = nullptr);
 
-    QComboBox *statusCombo;
-    TranslationsView *translationList;
+public slots:
+    void onItemNeedsUpdate(QModelIndex itemIndex, QString updatedText);
 
 private:
     void paintEvent(QPaintEvent *) override;
+
+public:
+    TranslationsModel *translations;
+    TranslationsView *translationsView;
+    QComboBox *statusCombo;
 };
 
 #endif // TRANSLATIONLIST_H

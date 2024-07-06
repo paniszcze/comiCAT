@@ -16,12 +16,12 @@ PageView::~PageView()
     if (reader) delete reader;
 }
 
-void PageView::loadPage(QString filePath, QStandardItemModel *translations)
+int PageView::loadPage(QString filePath, QStandardItemModel *translations)
 {
-    if (filePath == currentPath || !scene()) return;
+    if (filePath == currentPath || !scene()) return -1;
 
     currentImage = new QImage(filePath);
-    if (!currentImage) return;
+    if (!currentImage) return -1;
 
     currentPath = filePath;
     pixmapItem = scene()->addPixmap(QPixmap(currentPath));
@@ -31,6 +31,8 @@ void PageView::loadPage(QString filePath, QStandardItemModel *translations)
 
     QList<QRect> resultRecs = reader->readImg(filePath, translations);
     for (auto rect : resultRecs) scene()->addItem(new TranslationRect{rect});
+
+    return (int) resultRecs.size();
 }
 
 void PageView::clearPage()

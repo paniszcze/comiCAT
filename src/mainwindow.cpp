@@ -197,13 +197,14 @@ void MainWindow::createEditPane()
     editPane->addWidget(translationList);
     editPane->addWidget(translationEditor);
 
-    translationList->setEnabled(false);
-    translationEditor->setEnabled(false);
-
-    connect(translationList->translationList->selectionModel(),
+    connect(translationList->translationsView->selectionModel(),
             &QItemSelectionModel::selectionChanged,
             translationEditor,
             &TranslationEditor::onSelectionChanged);
+    connect(translationEditor,
+            &TranslationEditor::itemNeedsUpdate,
+            translationList,
+            &TranslationList::onItemNeedsUpdate);
 }
 
 void MainWindow::createActions()
@@ -293,18 +294,16 @@ void MainWindow::openFile()
     lastFileDialogDir = QDir(filePath);
     isFileOpened = true;
 
-    translationList->setEnabled(true);
-    translationEditor->setEnabled(true);
+    toolBar->setEnabled(true);
+    if (!currCanvasAction) currCanvasAction = canvasActions->actions().at(0);
+    currCanvasAction->setChecked(true);
 
-    pageView->loadPage(filePath, translations);
+    int readCount = pageView->loadPage(filePath, translations);
+    if (readCount > 0) translationList->setEnabled(true);
 
     fileNameLabel->setText(QFileInfo(filePath).fileName());
     for (auto child : statusBar()->children())
         static_cast<QWidget *>(child)->show();
-
-    toolBar->setEnabled(true);
-    if (!currCanvasAction) currCanvasAction = canvasActions->actions().at(0);
-    currCanvasAction->setChecked(true);
 }
 
 void MainWindow::closeFile()
@@ -319,10 +318,8 @@ void MainWindow::closeFile()
 
     currCanvasAction->setChecked(false);
     toolBar->setEnabled(false);
-
     translationList->setEnabled(false);
     translationEditor->setEnabled(false);
-
     currFilePath = "";
     isFileOpened = false;
 }

@@ -1,7 +1,13 @@
 #include "translationeditor.h"
 
 TranslationEditor::TranslationEditor(QWidget *parent) :
-    QWidget{parent}, x(0), y(0), width(0), height(0)
+    QWidget(parent),
+    currSource(QModelIndex()),
+    currTarget(QModelIndex()),
+    x(0),
+    y(0),
+    width(0),
+    height(0)
 {
     setObjectName("TranslationEditor");
     setStyleSheet(
@@ -23,24 +29,16 @@ TranslationEditor::TranslationEditor(QWidget *parent) :
     layout->addLayout(createEditor());
     layout->addLayout(createInfoBox());
     setLayout(layout);
-}
+    setEnabled(false);
 
-void TranslationEditor::onSelectionChanged(const QItemSelection &selected,
-                                           const QItemSelection &deselected)
-{
-    if (selected.isEmpty()) {
-        if (deselected.isEmpty()) return;
-
-        sourceEdit->setPlainText("");
-        targetEdit->setPlainText("");
-        setInfoDetails(QRect{});
-    } else {
-        sourceEdit->setPlainText(selected.indexes()[0].data().toString());
-        targetEdit->setPlainText(selected.indexes()[1].data().toString());
-        setInfoDetails(selected.indexes()[2].data().toRect());
-    }
-
-    updateInfoBox();
+    connect(sourceEdit,
+            &QTextEdit::textChanged,
+            this,
+            &TranslationEditor::onTextChanged);
+    connect(targetEdit,
+            &QTextEdit::textChanged,
+            this,
+            &TranslationEditor::onTextChanged);
 }
 
 QHBoxLayout *TranslationEditor::createHeader()
@@ -119,6 +117,37 @@ void TranslationEditor::setInfoDetails(QRect rect)
     y = rect.top();
     width = rect.width();
     height = rect.height();
+}
+
+void TranslationEditor::onSelectionChanged(const QItemSelection &selected,
+                                           const QItemSelection &deselected)
+{
+    if (selected.isEmpty()) {
+        if (deselected.isEmpty()) return;
+
+        currSource = QModelIndex();
+        currTarget = QModelIndex();
+        sourceEdit->clear();
+        targetEdit->clear();
+        setInfoDetails(QRect());
+        setEnabled(false);
+    } else {
+        setEnabled(true);
+        currSource = selected.indexes()[0];
+        currTarget = selected.indexes()[1];
+        sourceEdit->setPlainText(currSource.data().toString());
+        targetEdit->setPlainText(currTarget.data().toString());
+        setInfoDetails(selected.indexes()[2].data().toRect());
+    }
+
+    updateInfoBox();
+}
+
+void TranslationEditor::onTextChanged()
+{
+    if (sender() == sourceEdit)
+        emit itemNeedsUpdate(currSource, sourceEdit->toPlainText());
+    else emit itemNeedsUpdate(currTarget, targetEdit->toPlainText());
 }
 
 void TranslationEditor::paintEvent(QPaintEvent *)

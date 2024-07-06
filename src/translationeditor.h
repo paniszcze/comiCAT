@@ -1,6 +1,7 @@
 #ifndef TRANSLATIONEDITOR_H
 #define TRANSLATIONEDITOR_H
 
+#include <QDebug>
 #include <QHBoxLayout>
 #include <QItemSelection>
 #include <QLabel>
@@ -22,6 +23,10 @@ public:
 public slots:
     void onSelectionChanged(const QItemSelection &selected,
                             const QItemSelection &deselected);
+    void onTextChanged();
+
+signals:
+    void itemNeedsUpdate(QModelIndex itemIndex, QString updatedText);
 
 private:
     QHBoxLayout *createHeader();
@@ -46,6 +51,8 @@ public:
     QLabel *heightLabel;
 
 private:
+    QModelIndex currSource;
+    QModelIndex currTarget;
     int x, y, width, height;
 };
 
