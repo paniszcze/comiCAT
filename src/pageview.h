@@ -15,8 +15,6 @@
 #include <QRect>
 #include <QRectF>
 
-#include "reader.h"
-
 static const qreal MAX_SCALE = 20.0;
 static const qreal MIN_SCALE = 0.03;
 static const qreal ZOOM_STEP = 1.09;
@@ -29,7 +27,7 @@ public:
     PageView(QWidget *parent = nullptr);
     ~PageView();
 
-    int loadPage(QString filepath, QStandardItemModel *translations);
+    void loadPage(QString filepath);
     void clearPage();
     bool event(QEvent *event) override;
     bool gestureEvent(QGestureEvent *event);
@@ -48,9 +46,6 @@ protected:
 
 private:
     void setScaleFactor(qreal factor);
-
-public:
-    Reader *reader;
 
 private:
     QString currentPath = "";

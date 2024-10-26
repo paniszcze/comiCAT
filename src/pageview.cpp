@@ -1,38 +1,27 @@
 #include "pageview.h"
-#include "translationrect.h"
 
 PageView::PageView(QWidget *parent)
     : QGraphicsView(parent)
 {
-    reader = new Reader();
-
     setScene(new QGraphicsScene);
     grabGesture(Qt::PinchGesture);
     setAttribute(Qt::WA_AcceptTouchEvents);
 }
 
-PageView::~PageView()
-{
-    if (reader) delete reader;
-}
+PageView::~PageView() {}
 
-int PageView::loadPage(QString filePath, QStandardItemModel *translations)
+void PageView::loadPage(QString filePath)
 {
-    if (filePath == currentPath || !scene()) return -1;
+    if (filePath == currentPath || !scene()) return;
 
     currentImage = new QImage(filePath);
-    if (!currentImage) return -1;
+    if (!currentImage) return;
 
     currentPath = filePath;
     pixmapItem = scene()->addPixmap(QPixmap(currentPath));
     pixmapItem->setTransformationMode(Qt::SmoothTransformation);
     setSceneRect(pixmapItem->boundingRect());
     if (!QRectF(rect()).contains(sceneRect())) fitInWindow();
-
-    QList<QRect> resultRecs = reader->readImg(filePath, translations);
-    for (auto rect : resultRecs) scene()->addItem(new TranslationRect{rect});
-
-    return (int) resultRecs.size();
 }
 
 void PageView::clearPage()

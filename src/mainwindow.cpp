@@ -1,4 +1,5 @@
 #include "mainwindow.h"
+#include "translationrect.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -23,9 +24,14 @@ MainWindow::MainWindow(QWidget *parent) :
     centralLayout->setSpacing(0);
     centralLayout->addWidget(pageView);
     centralLayout->addLayout(editPane);
+
+    reader = new Reader();
 }
 
-MainWindow::~MainWindow() {}
+MainWindow::~MainWindow()
+{
+    if (reader) delete reader;
+}
 
 void MainWindow::createCentralWidget()
 {
@@ -101,6 +107,7 @@ void MainWindow::createStatusBar()
     auto separator = []() { return new QLabel("|"); };
 
     QWidget *projectInfo = new QWidget();
+    projectInfo->setObjectName("info");
     QHBoxLayout *infoLayout = new QHBoxLayout(projectInfo);
     infoLayout->setContentsMargins(10, 0, 0, 0);
     infoLayout->addWidget(pageLabel);
@@ -120,10 +127,20 @@ void MainWindow::createStatusBar()
         "QLabel {border: none; outline: none; color: #828282;"
         "font-size: 11px; font-weight: 300;}");
 
-    if (!isFileOpened)
-    {
+    updateStatusBarInfo();
+}
+
+void MainWindow::updateStatusBarInfo(QString fileName)
+{
+    fileNameLabel->setText(fileName);
+    QWidget *projectInfo = statusBar()->findChild<QWidget *>("info");
+
+    if (!isFileOpened) {
         fileNameLabel->hide();
         projectInfo->hide();
+    } else {
+        fileNameLabel->show();
+        projectInfo->show();
     }
 }
 
@@ -285,25 +302,29 @@ void MainWindow::openFile()
                                        "Open Image",
                                        lastFileDialogDir.path(),
                                        "Image Files (*.png *.jpg *.bmp)");
-
     if (filePath.isNull() || filePath == currFilePath) return;
 
     if (isFileOpened) closeFile();
+    isFileOpened = true;
 
     currFilePath = filePath;
     lastFileDialogDir = QDir(filePath);
-    isFileOpened = true;
 
     toolBar->setEnabled(true);
     if (!currCanvasAction) currCanvasAction = canvasActions->actions().at(0);
     currCanvasAction->setChecked(true);
 
-    int readCount = pageView->loadPage(filePath, translations);
-    if (readCount > 0) translationList->setEnabled(true);
+    updateStatusBarInfo(QFileInfo(filePath).fileName());
 
-    fileNameLabel->setText(QFileInfo(filePath).fileName());
-    for (auto child : statusBar()->children())
-        static_cast<QWidget *>(child)->show();
+    pageView->loadPage(filePath);
+    QList<Translation> ocrResults = reader->readImg(filePath);
+    if (!ocrResults.empty()) {
+        for (auto &item : ocrResults) {
+            pageView->scene()->addItem(new TranslationRect{item.bounds});
+            translations->addTranslation(item);
+        }
+    }
+    translationList->setEnabled(true);
 }
 
 void MainWindow::closeFile()

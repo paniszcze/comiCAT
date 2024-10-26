@@ -5,12 +5,13 @@
 #include <QList>
 #include <QObject>
 #include <QRect>
-#include <QStandardItemModel>
 #include <QString>
 
 #include <tesseract/baseapi.h>
 #include <leptonica/allheaders.h>
 #include <leptonica/pix_internal.h>
+
+#include "translation.h"
 
 class Reader : public QObject
 {
@@ -19,13 +20,7 @@ class Reader : public QObject
 public:
     Reader(QObject *parent = nullptr);
     ~Reader();
-
-    QList<QRect> readImg(QString filename, QStandardItemModel *translations);
-
-    void addTBox(QStandardItemModel *translations,
-                 const QString &source,
-                 const QString &target,
-                 const QRect &bounds);
+    QList<Translation> readImg(QString filename);
 
 private:
     tesseract::TessBaseAPI *api;

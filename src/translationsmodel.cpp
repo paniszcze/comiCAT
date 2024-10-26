@@ -9,6 +9,15 @@ TranslationsModel::TranslationsModel(QObject *parent)
     setHeaderData(2, Qt::Horizontal, QObject::tr("Bounds"));
 }
 
+void TranslationsModel::addTranslation(Translation translation)
+{
+    int row = rowCount();
+    insertRow(row);
+    setData(index(row, 0), translation.sourceText);
+    setData(index(row, 1), translation.targetText);
+    setData(index(row, 2), translation.bounds);
+}
+
 bool TranslationsModel::dropMimeData(const QMimeData *data,
                                      Qt::DropAction action,
                                      int row,

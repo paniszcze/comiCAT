@@ -18,6 +18,7 @@
 #include <QWidget>
 
 #include "pageview.h"
+#include "reader.h"
 #include "translationeditor.h"
 #include "translationlist.h"
 #include "translationsmodel.h"
@@ -38,6 +39,7 @@ public:
     void createCentralWidget();
     void createMenuBar();
     void createStatusBar();
+    void updateStatusBarInfo(QString fileName = "");
     void createToolBar();
     void createPageView();
     void createEditPane();
@@ -58,6 +60,8 @@ public:
     TranslationsModel *translations;
     TranslationList *translationList;
     TranslationEditor *translationEditor;
+
+    Reader *reader;
 
     QLabel *fileNameLabel;
     QLabel *pageLabel;

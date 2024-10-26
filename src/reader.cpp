@@ -19,11 +19,16 @@ Reader::~Reader()
     }
 }
 
-QList<QRect> Reader::readImg(QString filename, QStandardItemModel *translations)
+QList<Translation> Reader::readImg(QString filename)
 {
-    QList<QRect> resultRecs;
+    Pix *image;
+    QList<Translation> res;
 
-    Pix *image = pixRead(filename.toUtf8().constData());
+    qInfo() << "Trying to read";
+
+    image = pixRead(filename.toUtf8().constData());
+    if (!image) return res;
+
     api->SetImage(image);
     api->Recognize(0);
     tesseract::ResultIterator *ri = api->GetIterator();
@@ -35,26 +40,13 @@ QList<QRect> Reader::readImg(QString filename, QStandardItemModel *translations)
             if (!text.isEmpty()) {
                 int x1, y1, x2, y2;
                 ri->BoundingBox(level, &x1, &y1, &x2, &y2);
-                auto bounds = QRect(x1, y1, x2 - x1, y2 - y1);
-                resultRecs.append(bounds);
-                addTBox(translations, text, "", bounds);
+                QRect bounds = {x1, y1, x2 - x1, y2 - y1};
+                res.append({bounds, text, ""});
             }
             delete[] cstring;
         } while (ri->Next(level));
     }
     pixDestroy(&image);
 
-    return resultRecs;
-}
-
-void Reader::addTBox(QStandardItemModel *translations,
-                     const QString &source,
-                     const QString &target,
-                     const QRect &bounds)
-{
-    int row = translations->rowCount();
-    translations->insertRow(row);
-    translations->setData(translations->index(row, 0), source);
-    translations->setData(translations->index(row, 1), target);
-    translations->setData(translations->index(row, 2), bounds);
+    return res;
 }

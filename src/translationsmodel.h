@@ -3,10 +3,13 @@
 
 #include <QStandardItemModel>
 
+#include "translation.h"
+
 class TranslationsModel : public QStandardItemModel
 {
 public:
     explicit TranslationsModel(QObject *parent = nullptr);
+    void addTranslation(Translation translation);
 
     virtual bool dropMimeData(const QMimeData *data,
                               Qt::DropAction action,
