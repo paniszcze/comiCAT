@@ -24,29 +24,26 @@ QList<Translation> Reader::readImg(QString filename)
     Pix *image;
     QList<Translation> res;
 
-    qInfo() << "Trying to read";
-
-    image = pixRead(filename.toUtf8().constData());
-    if (!image) return res;
-
-    api->SetImage(image);
-    api->Recognize(0);
-    tesseract::ResultIterator *ri = api->GetIterator();
-    tesseract::PageIteratorLevel level = tesseract::RIL_PARA;
-    if (ri != 0) {
-        do {
-            const char *cstring = ri->GetUTF8Text(level);
-            auto text = QString(cstring).trimmed();
-            if (!text.isEmpty()) {
-                int x1, y1, x2, y2;
-                ri->BoundingBox(level, &x1, &y1, &x2, &y2);
-                QRect bounds = {x1, y1, x2 - x1, y2 - y1};
-                res.append({bounds, text, ""});
-            }
-            delete[] cstring;
-        } while (ri->Next(level));
+    if ((image = pixRead(filename.toUtf8().constData()))) {
+        api->SetImage(image);
+        api->Recognize(0);
+        tesseract::ResultIterator *ri = api->GetIterator();
+        tesseract::PageIteratorLevel level = tesseract::RIL_PARA;
+        if (ri != 0) {
+            do {
+                const char *cstring = ri->GetUTF8Text(level);
+                auto text = QString(cstring).trimmed();
+                if (!text.isEmpty()) {
+                    int x1, y1, x2, y2;
+                    ri->BoundingBox(level, &x1, &y1, &x2, &y2);
+                    QRect bounds = {x1, y1, x2 - x1, y2 - y1};
+                    res.append({bounds, text, ""});
+                }
+                delete[] cstring;
+            } while (ri->Next(level));
+        }
+        pixDestroy(&image);
     }
-    pixDestroy(&image);
 
     return res;
 }

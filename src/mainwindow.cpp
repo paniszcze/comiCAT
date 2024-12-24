@@ -1,71 +1,77 @@
 #include "mainwindow.h"
 #include "translationrect.h"
+#include "ui_mainwindow.h"
 
-MainWindow::MainWindow(QWidget *parent) :
+MainWindow::MainWindow(
+    QWidget *parent) :
     QMainWindow(parent),
+    ui(new Ui::MainWindow),
     isFileOpened(false),
     currFilePath(""),
     lastFileDialogDir(QDir().home()),
     currCanvasAction(nullptr)
 {
-    setWindowTitle("comiCAT");
-    resize(WINDOW_INIT_WIDTH, WINDOW_INTI_HEIGHT);
+    ui->setupUi(this);
 
-    createCentralWidget();
-    createPageView();
-    createEditPane();
-    createActions();
-    createMenuBar();
-    createStatusBar();
-    createToolBar();
+    // setWindowTitle("comiCAT");
+    // resize(WINDOW_INIT_WIDTH, WINDOW_INTI_HEIGHT);
 
-    QHBoxLayout *centralLayout = new QHBoxLayout(centralWidget);
-    centralLayout->setContentsMargins(0, 0, 0, 0);
-    centralLayout->setSpacing(0);
-    centralLayout->addWidget(pageView);
-    centralLayout->addLayout(editPane);
+    // createCentralWidget();
+    // createPageView();
+    // createEditPane();
+    // createActions();
+    // createMenuBar();
+    // createStatusBar();
+    // createToolBar();
 
-    reader = new Reader();
+    // QHBoxLayout *centralLayout = new QHBoxLayout(centralWidget);
+    // centralLayout->setContentsMargins(0, 0, 0, 0);
+    // centralLayout->setSpacing(0);
+    // centralLayout->addWidget(pageView);
+    // centralLayout->addLayout(editPane);
+
+    // reader = new Reader();
+
+    translations = new TranslationsModel();
 }
 
 MainWindow::~MainWindow()
 {
-    if (reader) delete reader;
+    // if (reader) delete reader;
+    delete ui;
 }
 
-void MainWindow::createCentralWidget()
-{
-    centralWidget = new QWidget(this);
-    centralWidget->setObjectName("CentralWidget");
-    setCentralWidget(centralWidget);
-    centralWidget->setStyleSheet(
-        "QWidget#CentralWidget {background-color: white;}"
-        "QScrollBar:vertical {background: transparent; border: none;"
-        "width: 10px; margin: 4px 0px 4px 4px;}"
-        "QScrollBar::handle:vertical"
-        "{min-height: 40px; border-radius: 3px; background: #cfcfcf;}"
-        "QScrollBar::handle:vertical:hover {background: #cfcfcf;}"
-        "QScrollBar::handle:vertical:pressed {background: #e0e0e0;}"
-        "QScrollBar::sub-line:vertical, QScrollBar::add-line:vertical,"
-        "QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical"
-        "{height: 0px; background: transparent;}"
-        "QScrollBar:horizontal {background: transparent; border: none;"
-        "height: 14px; margin: 4px 4px 4px 4px;}"
-        "QScrollBar::handle:horizontal"
-        "{min-width: 40px; border-radius: 3px; background: #cfcfcf;}"
-        "QScrollBar::handle:horizontal:hover {background: #cfcfcf;}"
-        "QScrollBar::handle:horizontal:pressed {background: #e0e0e0;}"
-        "QScrollBar::sub-line:horizontal, QScrollBar::add-line:horizontal,"
-        "QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal"
-        "{width: 0px; background: transparent;}"
-        "QAbstractScrollArea::corner {background-color: white; border: none;}");
-
-    translations = new TranslationsModel(centralWidget);
-}
+// void MainWindow::createCentralWidget()
+// {
+//     centralWidget = new QWidget(this);
+//     centralWidget->setObjectName("CentralWidget");
+//     setCentralWidget(centralWidget);
+//     centralWidget->setStyleSheet(
+//         "QWidget#CentralWidget {background-color: white;}"
+//         "QScrollBar:vertical {background: transparent; border: none;"
+//         "width: 10px; margin: 4px 0px 4px 4px;}"
+//         "QScrollBar::handle:vertical"
+//         "{min-height: 40px; border-radius: 3px; background: #cfcfcf;}"
+//         "QScrollBar::handle:vertical:hover {background: #cfcfcf;}"
+//         "QScrollBar::handle:vertical:pressed {background: #e0e0e0;}"
+//         "QScrollBar::sub-line:vertical, QScrollBar::add-line:vertical,"
+//         "QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical"
+//         "{height: 0px; background: transparent;}"
+//         "QScrollBar:horizontal {background: transparent; border: none;"
+//         "height: 14px; margin: 4px 4px 4px 4px;}"
+//         "QScrollBar::handle:horizontal"
+//         "{min-width: 40px; border-radius: 3px; background: #cfcfcf;}"
+//         "QScrollBar::handle:horizontal:hover {background: #cfcfcf;}"
+//         "QScrollBar::handle:horizontal:pressed {background: #e0e0e0;}"
+//         "QScrollBar::sub-line:horizontal, QScrollBar::add-line:horizontal,"
+//         "QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal"
+//         "{width: 0px; background: transparent;}"
+//         "QAbstractScrollArea::corner {background-color: white; border: none;}");
+// }
 
 void MainWindow::createMenuBar()
 {
-    menuBar = new QMenuBar(centralWidget);
+    menuBar = new QMenuBar();
     menuBar->setObjectName("MenuBar");
 
     fileMenu = menuBar->addMenu(tr("File", "MenuBar"));
@@ -146,7 +152,7 @@ void MainWindow::updateStatusBarInfo(QString fileName)
 
 void MainWindow::createToolBar()
 {
-    toolBar = new QToolBar(centralWidget);
+    toolBar = new QToolBar();
     toolBar->setFloatable(false);
     toolBar->setMovable(false);
     toolBar->setAllowedAreas(Qt::LeftToolBarArea);

@@ -1,6 +1,7 @@
 #ifndef TRANSLATIONSVIEW_H
 #define TRANSLATIONSVIEW_H
 
+#include <QHeaderView>
 #include <QObject>
 #include <QTableView>
 #include <QWidget>

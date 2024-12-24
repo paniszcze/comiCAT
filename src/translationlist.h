@@ -3,7 +3,6 @@
 
 #include <QComboBox>
 #include <QHBoxLayout>
-#include <QHeaderView>
 #include <QLabel>
 #include <QPainter>
 #include <QStandardItemModel>

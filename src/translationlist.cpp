@@ -30,28 +30,8 @@ TranslationList::TranslationList(QWidget *parent, TranslationsModel *model) :
     statusLabel->setBuddy(statusCombo);
 
     translationsView = new TranslationsView();
-
-    // selection behaviour
-    translationsView->setSelectionMode(QAbstractItemView::SingleSelection);
-    translationsView->setSelectionBehavior(QAbstractItemView::SelectRows);
-    translationsView->setEditTriggers(QAbstractItemView::NoEditTriggers);
-
-    // drag'n'drop behaviour
-    translationsView->setDragEnabled(true);
-    translationsView->setDropIndicatorShown(true);
-    translationsView->setDefaultDropAction(Qt::MoveAction);
-    translationsView->setDragDropMode(QAbstractItemView::InternalMove);
-    translationsView->setDragDropOverwriteMode(false);
-
     translationsView->setModel(translations);
     translationsView->hideColumn(2);
-    translationsView->horizontalHeader()->setSectionResizeMode(
-        QHeaderView::Stretch);
-    translationsView->horizontalHeader()->setHighlightSections(false);
-    translationsView->verticalHeader()->setSectionResizeMode(
-        QHeaderView::ResizeToContents);
-    translationsView->verticalHeader()->setVisible(false);
-    translationsView->setShowGrid(false);
 
     QHBoxLayout *header = new QHBoxLayout();
     header->addWidget(title, 1, Qt::AlignLeft);

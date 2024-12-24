@@ -1,7 +1,6 @@
 QT       += core gui
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
-QT += gui
 
 CONFIG += c++17
 
@@ -40,6 +39,10 @@ HEADERS += \
     src/translationsmodel.h \
     src/translationsview.h \
     src/translationsviewstyle.h
+
+FORMS += \
+    src/mainwindow.ui \
+    src/mainwindow.ui
 
 RESOURCES += \
     resources.qrc

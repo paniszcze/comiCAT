@@ -27,6 +27,12 @@ static const int WINDOW_INIT_WIDTH = 1000;
 static const int WINDOW_INTI_HEIGHT = 600;
 static const int ICON_SIZE = 16;
 
+QT_BEGIN_NAMESPACE
+namespace Ui {
+class MainWindow;
+}
+QT_END_NAMESPACE
+
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -51,7 +57,6 @@ public slots:
     void onCanvasActionChanged();
 
 public:
-    QWidget *centralWidget;
     QMenuBar *menuBar;
     QToolBar *toolBar;
     PageView *pageView;
@@ -94,6 +99,7 @@ public:
     QMenu *viewMenu;
 
 private:
+    Ui::MainWindow *ui;
     bool isFileOpened;
     QString currFilePath;
     QDir lastFileDialogDir;
