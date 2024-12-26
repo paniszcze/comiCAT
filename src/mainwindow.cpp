@@ -215,6 +215,8 @@ void MainWindow::closeFile()
 
     ui->pageView->clearPage();
     translations->removeRows(0, translations->rowCount());
+    currFilePath = "";
+    isFileOpened = false;
 
     updateStatusBarInfo();
     ui->toolBar->setEnabled(false);
@@ -225,9 +227,6 @@ void MainWindow::closeFile()
     ui->translateButton->setEnabled(false);
     ui->completeButton->setEnabled(false);
     currCanvasAction->setChecked(false);
-
-    currFilePath = "";
-    isFileOpened = false;
 }
 
 void MainWindow::onCanvasZoomChanged(qreal scaleFactor)
