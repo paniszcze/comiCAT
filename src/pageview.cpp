@@ -26,8 +26,6 @@ void PageView::loadPage(QString filePath)
 
 void PageView::clearPage()
 {
-    if (!scene()) return;
-
     resetZoom();
     setSceneRect(rect());
     scene()->clear();

@@ -20,7 +20,6 @@
 #include "pageview.h"
 #include "reader.h"
 #include "translationeditor.h"
-#include "translationlist.h"
 #include "translationsmodel.h"
 
 static const int WINDOW_INIT_WIDTH = 1000;
@@ -42,28 +41,23 @@ public:
     ~MainWindow();
 
     void createActions();
-    void createCentralWidget();
     void createMenuBar();
     void createStatusBar();
     void updateStatusBarInfo(QString fileName = "");
     void createToolBar();
-    void createPageView();
-    void createEditPane();
 
 public slots:
     void openFile();
     void closeFile();
     void onCanvasZoomChanged(qreal percent);
     void onCanvasActionChanged();
+    void onItemNeedsUpdate(QModelIndex itemIndex, QString updatedText);
 
 public:
     QMenuBar *menuBar;
     QToolBar *toolBar;
-    PageView *pageView;
-    QVBoxLayout *editPane;
 
     TranslationsModel *translations;
-    TranslationList *translationList;
     TranslationEditor *translationEditor;
 
     Reader *reader;

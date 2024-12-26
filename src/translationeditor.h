@@ -29,8 +29,6 @@ signals:
     void itemNeedsUpdate(QModelIndex itemIndex, QString updatedText);
 
 private:
-    QHBoxLayout *createHeader();
-    QHBoxLayout *createEditor();
     QHBoxLayout *createInfoBox();
     QHBoxLayout *createLabel(QLabel *&label,
                              int value,

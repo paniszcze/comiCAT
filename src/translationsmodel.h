@@ -2,7 +2,6 @@
 #define TRANSLATIONSMODEL_H
 
 #include <QStandardItemModel>
-
 #include "translation.h"
 
 class TranslationsModel : public QStandardItemModel

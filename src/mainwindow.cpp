@@ -5,69 +5,49 @@
 MainWindow::MainWindow(
     QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::MainWindow),
-    isFileOpened(false),
-    currFilePath(""),
-    lastFileDialogDir(QDir().home()),
-    currCanvasAction(nullptr)
+    translations(new TranslationsModel),
+    reader(new Reader),
+    ui(new Ui::MainWindow)
+// isFileOpened(false),
+// currFilePath(""),
+// lastFileDialogDir(QDir().home()),
+// currCanvasAction(nullptr)
 {
     ui->setupUi(this);
 
-    // setWindowTitle("comiCAT");
-    // resize(WINDOW_INIT_WIDTH, WINDOW_INTI_HEIGHT);
+    ui->tableView->horizontalHeader()->setSectionResizeMode(
+        QHeaderView::Stretch);
+    ui->tableView->setModel(translations);
+    ui->tableView->hideColumn(2);
 
-    // createCentralWidget();
-    // createPageView();
-    // createEditPane();
+    ui->pageView->loadPage(
+        "/Users/danny/Downloads/comics/killing-my-childhood.jpg");
+
+    // connect(ui->pageView,
+    //         &PageView::canvasZoomChanged,
+    //         this,
+    //         &MainWindow::onCanvasZoomChanged);
+    connect(ui->tableView->selectionModel(),
+            &QItemSelectionModel::selectionChanged,
+            translationEditor,
+            &TranslationEditor::onSelectionChanged);
+    connect(translationEditor,
+            &TranslationEditor::itemNeedsUpdate,
+            this,
+            &MainWindow::onItemNeedsUpdate);
+
     // createActions();
     // createMenuBar();
     // createStatusBar();
     // createToolBar();
-
-    // QHBoxLayout *centralLayout = new QHBoxLayout(centralWidget);
-    // centralLayout->setContentsMargins(0, 0, 0, 0);
-    // centralLayout->setSpacing(0);
-    // centralLayout->addWidget(pageView);
-    // centralLayout->addLayout(editPane);
-
-    // reader = new Reader();
-
-    translations = new TranslationsModel();
 }
 
 MainWindow::~MainWindow()
 {
-    // if (reader) delete reader;
+    delete translations;
+    delete reader;
     delete ui;
 }
-
-// void MainWindow::createCentralWidget()
-// {
-//     centralWidget = new QWidget(this);
-//     centralWidget->setObjectName("CentralWidget");
-//     setCentralWidget(centralWidget);
-//     centralWidget->setStyleSheet(
-//         "QWidget#CentralWidget {background-color: white;}"
-//         "QScrollBar:vertical {background: transparent; border: none;"
-//         "width: 10px; margin: 4px 0px 4px 4px;}"
-//         "QScrollBar::handle:vertical"
-//         "{min-height: 40px; border-radius: 3px; background: #cfcfcf;}"
-//         "QScrollBar::handle:vertical:hover {background: #cfcfcf;}"
-//         "QScrollBar::handle:vertical:pressed {background: #e0e0e0;}"
-//         "QScrollBar::sub-line:vertical, QScrollBar::add-line:vertical,"
-//         "QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical"
-//         "{height: 0px; background: transparent;}"
-//         "QScrollBar:horizontal {background: transparent; border: none;"
-//         "height: 14px; margin: 4px 4px 4px 4px;}"
-//         "QScrollBar::handle:horizontal"
-//         "{min-width: 40px; border-radius: 3px; background: #cfcfcf;}"
-//         "QScrollBar::handle:horizontal:hover {background: #cfcfcf;}"
-//         "QScrollBar::handle:horizontal:pressed {background: #e0e0e0;}"
-//         "QScrollBar::sub-line:horizontal, QScrollBar::add-line:horizontal,"
-//         "QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal"
-//         "{width: 0px; background: transparent;}"
-//         "QAbstractScrollArea::corner {background-color: white; border: none;}");
-// }
 
 void MainWindow::createMenuBar()
 {
@@ -152,23 +132,6 @@ void MainWindow::updateStatusBarInfo(QString fileName)
 
 void MainWindow::createToolBar()
 {
-    toolBar = new QToolBar();
-    toolBar->setFloatable(false);
-    toolBar->setMovable(false);
-    toolBar->setAllowedAreas(Qt::LeftToolBarArea);
-    toolBar->setOrientation(Qt::Vertical);
-    toolBar->setIconSize(QSize(ICON_SIZE, ICON_SIZE));
-    toolBar->setStyleSheet(
-        "QToolBar {padding: 4px; spacing: 4px; background-color: white;"
-        "outline: none; border-right: 1px solid #e0e0e0;}"
-        "QToolBar::separator {height: 1px; margin: 4px; background: #e0e0e0;}"
-        "QToolButton {width: 28px; padding: 6px 4px; border-radius: 4;"
-        "background-color: white;}"
-        "QToolButton:checked, QToolButton:pressed[checkable=\"true\"]"
-        "{background-color: #e0e0e0;}"
-        "QToolButton:hover:!pressed:!checked[checkable=\"true\"]"
-        "{background-color: #f2f2f2;}");
-
     QWidget *spacer = new QWidget();
     spacer->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
 
@@ -187,47 +150,6 @@ void MainWindow::createToolBar()
 
     addToolBar(Qt::LeftToolBarArea, toolBar);
     toolBar->setEnabled(false);
-}
-
-void MainWindow::createPageView()
-{
-    pageView = new PageView(this);
-    pageView->setStyleSheet(
-        "QGraphicsView"
-        "{border: none; outline: none; background-color: white;}");
-
-    connect(pageView,
-            &PageView::canvasZoomChanged,
-            this,
-            &MainWindow::onCanvasZoomChanged);
-}
-
-void MainWindow::createEditPane()
-{
-    QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
-
-    translationList = new TranslationList(this, translations);
-    sizePolicy.setVerticalStretch(4);
-    translationList->setSizePolicy(sizePolicy);
-
-    translationEditor = new TranslationEditor(this);
-    sizePolicy.setVerticalStretch(3);
-    translationEditor->setSizePolicy(sizePolicy);
-
-    editPane = new QVBoxLayout();
-    editPane->setContentsMargins(16, 16, 16, 16);
-    editPane->setSpacing(16);
-    editPane->addWidget(translationList);
-    editPane->addWidget(translationEditor);
-
-    connect(translationList->translationsView->selectionModel(),
-            &QItemSelectionModel::selectionChanged,
-            translationEditor,
-            &TranslationEditor::onSelectionChanged);
-    connect(translationEditor,
-            &TranslationEditor::itemNeedsUpdate,
-            translationList,
-            &TranslationList::onItemNeedsUpdate);
 }
 
 void MainWindow::createActions()
@@ -249,25 +171,28 @@ void MainWindow::createActions()
 
     actionFitInWindow = new QAction("Fit in Window");
     actionFitInWindow->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_0));
-    connect(actionFitInWindow,
-            &QAction::triggered,
-            pageView,
-            &PageView::fitInWindow);
+    // connect(actionFitInWindow,
+    //         &QAction::triggered,
+    //         ui->pageView,
+    //         &PageView::fitInWindow);
 
     actionActualSize = new QAction("Actual Size");
     actionActualSize->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_1));
-    connect(actionActualSize,
-            &QAction::triggered,
-            pageView,
-            &PageView::resetZoom);
+    // connect(actionActualSize,
+    //         &QAction::triggered,
+    //         ui->pageView,
+    //         &PageView::resetZoom);
 
     actionZoomIn = new QAction("Zoom In");
     actionZoomIn->setShortcut(QKeySequence::ZoomIn);
-    connect(actionZoomIn, &QAction::triggered, pageView, &PageView::zoomIn);
+    // connect(actionZoomIn, &QAction::triggered, ui->pageView, &PageView::zoomIn);
 
     actionZoomOut = new QAction("Zoom Out");
     actionZoomOut->setShortcut(QKeySequence::ZoomOut);
-    connect(actionZoomOut, &QAction::triggered, pageView, &PageView::zoomOut);
+    // connect(actionZoomOut,
+    //         &QAction::triggered,
+    //         ui->pageView,
+    //         &PageView::zoomOut);
 
     actionSelect = new QAction(QIcon(":/resources/icons/select.svg"), "Select");
     actionDirectSelect = new QAction(QIcon(
@@ -322,22 +247,23 @@ void MainWindow::openFile()
 
     updateStatusBarInfo(QFileInfo(filePath).fileName());
 
-    pageView->loadPage(filePath);
+    ui->pageView->loadPage(filePath);
     QList<Translation> ocrResults = reader->readImg(filePath);
     if (!ocrResults.empty()) {
         for (auto &item : ocrResults) {
-            pageView->scene()->addItem(new TranslationRect{item.bounds});
+            ui->pageView->scene()->addItem(new TranslationRect{item.bounds});
             translations->addTranslation(item);
         }
     }
-    translationList->setEnabled(true);
+    ui->tableView->setEnabled(true);
+    ui->statusFilter->setEnabled(true);
 }
 
 void MainWindow::closeFile()
 {
     if (!isFileOpened) return;
 
-    pageView->clearPage();
+    ui->pageView->clearPage();
     translations->removeRows(0, translations->rowCount());
 
     for (auto child : statusBar()->children())
@@ -345,7 +271,10 @@ void MainWindow::closeFile()
 
     currCanvasAction->setChecked(false);
     toolBar->setEnabled(false);
-    translationList->setEnabled(false);
+
+    ui->tableView->setEnabled(false);
+    ui->statusFilter->setEnabled(false);
+
     translationEditor->setEnabled(false);
     currFilePath = "";
     isFileOpened = false;
@@ -362,3 +291,13 @@ void MainWindow::onCanvasActionChanged()
 {
     currCanvasAction = canvasActions->checkedAction();
 }
+
+// <--- translationList
+void MainWindow::onItemNeedsUpdate(
+    QModelIndex itemIndex, QString updatedText)
+{
+    if (ui->tableView->selectionModel()->isRowSelected(itemIndex.row(),
+                                                       QModelIndex()))
+        translations->setData(itemIndex, updatedText);
+}
+// translationList --->

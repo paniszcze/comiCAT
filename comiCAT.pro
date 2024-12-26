@@ -22,7 +22,6 @@ SOURCES += \
     src/reader.cpp \
     src/translation.cpp \
     src/translationeditor.cpp \
-    src/translationlist.cpp \
     src/translationrect.cpp \
     src/translationsmodel.cpp \
     src/translationsview.cpp \
@@ -34,14 +33,12 @@ HEADERS += \
     src/reader.h \
     src/translation.h \
     src/translationeditor.h \
-    src/translationlist.h \
     src/translationrect.h \
     src/translationsmodel.h \
     src/translationsview.h \
     src/translationsviewstyle.h
 
 FORMS += \
-    src/mainwindow.ui \
     src/mainwindow.ui
 
 RESOURCES += \
