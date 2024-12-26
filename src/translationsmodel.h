@@ -5,6 +5,13 @@
 #include <QStandardItemModel>
 #include <QString>
 
+enum ModelHeaders {
+    TEXT,
+    TRANSLATION,
+    BOUNDS,
+    HEADERS_COUNT
+};
+
 struct Translation
 {
     QString sourceText;

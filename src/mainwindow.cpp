@@ -32,7 +32,7 @@ MainWindow::MainWindow(
     ui->tableView->verticalHeader()->setSectionResizeMode(
         QHeaderView::ResizeToContents);
     ui->tableView->setModel(translations);
-    ui->tableView->hideColumn(2);
+    ui->tableView->hideColumn(BOUNDS);
 
     // ACTIONS & TOOLBAR SETUP
     createActions();
@@ -270,11 +270,11 @@ void MainWindow::onSelectionChanged(
         ui->targetEdit->clear();
         setInfoDetails(QRect());
     } else {
-        currSource = selected.indexes()[0];
-        currTarget = selected.indexes()[1];
+        currSource = selected.indexes()[TEXT];
+        currTarget = selected.indexes()[TRANSLATION];
         ui->sourceEdit->setPlainText(currSource.data().toString());
         ui->targetEdit->setPlainText(currTarget.data().toString());
-        setInfoDetails(selected.indexes()[2].data().toRect());
+        setInfoDetails(selected.indexes()[BOUNDS].data().toRect());
     }
 
     updateInfoBox();
