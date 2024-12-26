@@ -20,23 +20,17 @@ SOURCES += \
     src/mainwindow.cpp \
     src/pageview.cpp \
     src/reader.cpp \
-    src/translation.cpp \
-    src/translationeditor.cpp \
     src/translationrect.cpp \
     src/translationsmodel.cpp \
-    src/translationsview.cpp \
-    src/translationsviewstyle.cpp
+    src/translationsview.cpp
 
 HEADERS += \
     src/mainwindow.h \
     src/pageview.h \
     src/reader.h \
-    src/translation.h \
-    src/translationeditor.h \
     src/translationrect.h \
     src/translationsmodel.h \
-    src/translationsview.h \
-    src/translationsviewstyle.h
+    src/translationsview.h
 
 FORMS += \
     src/mainwindow.ui

@@ -11,7 +11,7 @@
 #include <leptonica/allheaders.h>
 #include <leptonica/pix_internal.h>
 
-#include "translation.h"
+#include "translationsmodel.h"
 
 class Reader : public QObject
 {

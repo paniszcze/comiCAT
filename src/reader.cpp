@@ -37,7 +37,7 @@ QList<Translation> Reader::readImg(QString filename)
                     int x1, y1, x2, y2;
                     ri->BoundingBox(level, &x1, &y1, &x2, &y2);
                     QRect bounds = {x1, y1, x2 - x1, y2 - y1};
-                    res.append({bounds, text, ""});
+                    res.append({text, "", bounds});
                 }
                 delete[] cstring;
             } while (ri->Next(level));

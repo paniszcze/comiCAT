@@ -1,8 +1,16 @@
 #ifndef TRANSLATIONSMODEL_H
 #define TRANSLATIONSMODEL_H
 
+#include <QRect>
 #include <QStandardItemModel>
-#include "translation.h"
+#include <QString>
+
+struct Translation
+{
+    QString sourceText;
+    QString targetText;
+    QRect bounds;
+};
 
 class TranslationsModel : public QStandardItemModel
 {

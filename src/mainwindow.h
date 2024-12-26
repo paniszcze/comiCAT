@@ -17,14 +17,8 @@
 #include <QToolBar>
 #include <QWidget>
 
-#include "pageview.h"
 #include "reader.h"
-#include "translationeditor.h"
 #include "translationsmodel.h"
-
-static const int WINDOW_INIT_WIDTH = 1000;
-static const int WINDOW_INTI_HEIGHT = 600;
-static const int ICON_SIZE = 16;
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -41,40 +35,28 @@ public:
     ~MainWindow();
 
     void createActions();
-    void createMenuBar();
     void createStatusBar();
     void updateStatusBarInfo(QString fileName = "");
     void createToolBar();
+
+private:
+    void setInfoDetails(QRect rect);
+    void updateInfoBox();
 
 public slots:
     void openFile();
     void closeFile();
     void onCanvasZoomChanged(qreal percent);
     void onCanvasActionChanged();
-    void onItemNeedsUpdate(QModelIndex itemIndex, QString updatedText);
+    void onSelectionChanged(const QItemSelection &selected,
+                            const QItemSelection &deselected);
+    void onTextChanged();
 
 public:
     QMenuBar *menuBar;
-    QToolBar *toolBar;
 
     TranslationsModel *translations;
-    TranslationEditor *translationEditor;
-
     Reader *reader;
-
-    QLabel *fileNameLabel;
-    QLabel *pageLabel;
-    QLabel *zoomLabel;
-    QLabel *finishedLabel;
-
-    QAction *actionOpen;
-    QAction *actionClose;
-    QAction *actionQuit;
-
-    QAction *actionFitInWindow;
-    QAction *actionActualSize;
-    QAction *actionZoomIn;
-    QAction *actionZoomOut;
 
     QActionGroup *canvasActions;
     QAction *actionSelect;
@@ -87,16 +69,23 @@ public:
     QAction *actionZoom;
     QAction *actionOpenSettings;
 
-    QMenu *fileMenu;
-    QMenu *exportMenu;
-    QMenu *editMenu;
-    QMenu *viewMenu;
+    QLabel *fileNameLabel;
+    QLabel *pageLabel;
+    QLabel *zoomLabel;
+    QLabel *progressLabel;
 
 private:
     Ui::MainWindow *ui;
+
     bool isFileOpened;
     QString currFilePath;
     QDir lastFileDialogDir;
+
     QAction *currCanvasAction;
+
+    QModelIndex currSource;
+    QModelIndex currTarget;
+
+    int x, y, width, height;
 };
 #endif // MAINWINDOW_H

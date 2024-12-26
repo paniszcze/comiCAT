@@ -14,7 +14,7 @@ public:
     TranslationsView(QWidget *parent = nullptr);
 
 protected:
-    QModelIndexList selectedIndexes() const;
+    QModelIndexList selectedIndexes() const override;
 };
 
 #endif // TRANSLATIONSVIEW_H
