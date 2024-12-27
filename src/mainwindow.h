@@ -53,8 +53,6 @@ public slots:
     void onTextChanged();
 
 public:
-    QMenuBar *menuBar;
-
     TranslationsModel *translations;
     Reader *reader;
 
@@ -67,12 +65,14 @@ public:
     QAction *actionRemove;
     QAction *actionMove;
     QAction *actionZoom;
-    QAction *actionOpenSettings;
+    QAction *actionSettings;
 
     QLabel *fileNameLabel;
     QLabel *pageLabel;
     QLabel *zoomLabel;
     QLabel *progressLabel;
+
+    int x, y, width, height;
 
 private:
     Ui::MainWindow *ui;
@@ -85,7 +85,5 @@ private:
 
     QModelIndex currSource;
     QModelIndex currTarget;
-
-    int x, y, width, height;
 };
 #endif // MAINWINDOW_H

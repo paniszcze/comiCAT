@@ -3,7 +3,7 @@
 PageView::PageView(QWidget *parent)
     : QGraphicsView(parent)
 {
-    setScene(new QGraphicsScene);
+    setScene(new QGraphicsScene(this));
     grabGesture(Qt::PinchGesture);
     setAttribute(Qt::WA_AcceptTouchEvents);
 }
@@ -12,13 +12,10 @@ PageView::~PageView() {}
 
 void PageView::loadPage(QString filePath)
 {
-    if (filePath == currentPath || !scene()) return;
+    currFilePath = filePath;
+    currImage = new QImage(currFilePath);
 
-    currentImage = new QImage(filePath);
-    if (!currentImage) return;
-
-    currentPath = filePath;
-    pixmapItem = scene()->addPixmap(QPixmap(currentPath));
+    pixmapItem = scene()->addPixmap(QPixmap(currFilePath));
     pixmapItem->setTransformationMode(Qt::SmoothTransformation);
     setSceneRect(pixmapItem->boundingRect());
     if (!QRectF(rect()).contains(sceneRect())) fitInWindow();
@@ -30,11 +27,11 @@ void PageView::clearPage()
     setSceneRect(rect());
     scene()->clear();
 
-    if (currentImage) {
-        delete currentImage;
-        currentImage = nullptr;
+    if (currImage) {
+        delete currImage;
+        currImage = nullptr;
     }
-    currentPath = "";
+    currFilePath = "";
 }
 
 bool PageView::event(QEvent *event)
@@ -83,7 +80,7 @@ void PageView::zoomOut() { setScaleFactor(1.0 / ZOOM_STEP); }
 
 void PageView::setScaleFactor(qreal factor)
 {
-    if (currentPath.isEmpty()) return;
+    if (currFilePath.isEmpty()) return;
 
     scaleFactor *= factor;
     scale(factor, factor);

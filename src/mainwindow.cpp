@@ -7,17 +7,17 @@ MainWindow::MainWindow(
     QMainWindow(parent),
     translations(new TranslationsModel),
     reader(new Reader),
+    x(0),
+    y(0),
+    width(0),
+    height(0),
     ui(new Ui::MainWindow),
     isFileOpened(false),
     currFilePath(""),
     lastFileDialogDir(QDir().home()),
     currCanvasAction(nullptr),
     currSource(QModelIndex()),
-    currTarget(QModelIndex()),
-    x(0),
-    y(0),
-    width(0),
-    height(0)
+    currTarget(QModelIndex())
 {
     // UI SETUP
     ui->setupUi(this);
@@ -26,6 +26,10 @@ MainWindow::MainWindow(
     createStatusBar();
     updateStatusBarInfo();
 
+    // ACTIONS & TOOLBAR SETUP
+    createActions();
+    createToolBar();
+
     // TABLEVIEW SETUP
     ui->tableView->horizontalHeader()->setSectionResizeMode(
         QHeaderView::Stretch);
@@ -33,10 +37,6 @@ MainWindow::MainWindow(
         QHeaderView::ResizeToContents);
     ui->tableView->setModel(translations);
     ui->tableView->hideColumn(BOUNDS);
-
-    // ACTIONS & TOOLBAR SETUP
-    createActions();
-    createToolBar();
 
     // SLOTS & SIGNALS
     connect(ui->pageView,
@@ -125,7 +125,7 @@ void MainWindow::createToolBar()
     ui->toolBar->addAction(actionMove);
     ui->toolBar->addAction(actionZoom);
     ui->toolBar->addWidget(spacer);
-    ui->toolBar->addAction(actionOpenSettings);
+    ui->toolBar->addAction(actionSettings);
 }
 
 void MainWindow::createActions()
@@ -151,8 +151,8 @@ void MainWindow::createActions()
     actionRemove = new QAction(QIcon(":/resources/icons/erase.svg"), "Remove");
     actionMove = new QAction(QIcon(":/resources/icons/hand.svg"), "Move");
     actionZoom = new QAction(QIcon(":/resources/icons/zoom.svg"), "Zoom");
-    actionOpenSettings = new QAction(QIcon(":/resources/icons/settings.svg"),
-                                     "Settings");
+    actionSettings = new QAction(QIcon(":/resources/icons/settings.svg"),
+                                 "Settings");
 
     canvasActions = new QActionGroup(this);
     canvasActions->addAction(actionSelect);
@@ -175,14 +175,14 @@ void MainWindow::createActions()
 
 void MainWindow::openFile()
 {
-    if (isFileOpened) closeFile();
-
     QString filePath
         = QFileDialog::getOpenFileName(this,
                                        "Open Image",
                                        lastFileDialogDir.path(),
                                        "Image Files (*.png *.jpg *.bmp)");
     if (filePath.isNull() || filePath == currFilePath) return;
+
+    if (isFileOpened) closeFile();
 
     currFilePath = filePath;
     isFileOpened = true;

@@ -9,5 +9,8 @@
         <file>resources/icons/zoom.svg</file>
         <file>resources/icons/add.svg</file>
         <file>resources/icons/settings.svg</file>
+        <file>resources/icons/down-arrow.svg</file>
+        <file>resources/icons/up-arrow.svg</file>
+        <file>resources/icons/down-arrow-disabled.svg</file>
     </qresource>
 </RCC>

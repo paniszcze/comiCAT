@@ -48,8 +48,8 @@ private:
     void setScaleFactor(qreal factor);
 
 private:
-    QString currentPath = "";
-    QImage *currentImage = nullptr;
+    QString currFilePath = "";
+    QImage *currImage = nullptr;
     QGraphicsPixmapItem *pixmapItem = nullptr;
     qreal scaleFactor = 1.0;
 };
