@@ -651,15 +651,13 @@ QAbstractScrollArea::corner { background-color: white; border: none; }</string>
               </font>
              </property>
              <property name="styleSheet">
-              <string notr="true">QComboBox { padding: 4px 18px 4px 6px; background-color: white; color: black; border-color: #e8e8e8; border-width: 1px 1px 2px; border-style: solid; border-radius: 4px; }
+              <string notr="true">QComboBox { padding: 3px 18px 3px 8px; background-color: white; color: black; border-color: #e8e8e8; border-width: 1px 1px 2px; border-style: solid; border-radius: 4px; }
 QComboBox:disabled { border-color: #f3f3f3; color: #7f7f7f; }
-QComboBox:on { background-color: white; color: black; }
-QComboBox::drop-down { subcontrol-origin: padding; subcontrol-position: top right; width: 24px; border-top-right-radius: 4px; border-bottom-right-radius: 4px; }
+QComboBox::drop-down { subcontrol-origin: padding; subcontrol-position: top right; width: 22px; border-top-right-radius: 4px; border-bottom-right-radius: 4px; }
 QComboBox::down-arrow { width: 10px; image: url(:/resources/icons/down-arrow.svg); }
 QComboBox::down-arrow:on { image: url(:/resources/icons/up-arrow.svg); }
 QComboBox::down-arrow:disabled { image: url(:/resources/icons/down-arrow-disabled.svg); }
-QComboBox QAbstractItemView { background-color: white; color: black; selection-background-color: #f2f2f2; border: none; outline: none; }
-QComboBox QAbstractItemView:hover { background-color: #f2f2f2; color: black; selection-background-color: #f2f2f2; border: none; outline: none; }</string>
+QComboBox QAbstractItemView { padding: 4px 0; border: none; outline: none; border-radius: 4px; background-color: #f3f3f3; color: black; selection-background-color: white; selection-color: black; }</string>
              </property>
              <item>
               <property name="text">

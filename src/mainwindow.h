@@ -68,8 +68,8 @@ public:
     QAction *actionSettings;
 
     QLabel *fileNameLabel;
-    QLabel *pageLabel;
     QLabel *zoomLabel;
+    QLabel *pageLabel;
     QLabel *progressLabel;
 
     int x, y, width, height;

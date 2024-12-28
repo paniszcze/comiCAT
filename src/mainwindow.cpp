@@ -67,8 +67,8 @@ MainWindow::~MainWindow()
 void MainWindow::createStatusBar()
 {
     fileNameLabel = new QLabel("");
-    pageLabel = new QLabel("Page 1 of 1");
     zoomLabel = new QLabel("Zoom: 100%");
+    pageLabel = new QLabel("Page 1 of 1");
     progressLabel = new QLabel("Finished: 0%");
 
     auto separator = []() { return new QLabel("|"); };
@@ -77,9 +77,9 @@ void MainWindow::createStatusBar()
     projectInfo->setObjectName("projectInfo");
     QHBoxLayout *infoLayout = new QHBoxLayout(projectInfo);
     infoLayout->setContentsMargins(10, 0, 0, 0);
-    infoLayout->addWidget(pageLabel);
-    infoLayout->addWidget(separator());
     infoLayout->addWidget(zoomLabel);
+    infoLayout->addWidget(separator());
+    infoLayout->addWidget(pageLabel);
     infoLayout->addWidget(separator());
     infoLayout->addWidget(progressLabel);
 
