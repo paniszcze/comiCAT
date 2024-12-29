@@ -9,6 +9,7 @@ enum ModelHeaders {
     TEXT,
     TRANSLATION,
     BOUNDS,
+    COMPLETED,
     HEADERS_COUNT
 };
 
@@ -17,6 +18,7 @@ struct Translation
     QString sourceText;
     QString targetText;
     QRect bounds;
+    bool isCompleted;
 };
 
 class TranslationsModel : public QStandardItemModel
@@ -32,6 +34,8 @@ public:
                               const QModelIndex &parent) override;
     virtual Qt::DropActions supportedDropActions() const override;
     virtual Qt::ItemFlags flags(const QModelIndex &index) const override;
+    QVariant data(const QModelIndex &index,
+                  int role = Qt::DisplayRole) const override;
 };
 
 #endif // TRANSLATIONSMODEL_H

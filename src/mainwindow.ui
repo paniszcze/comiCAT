@@ -717,6 +717,12 @@ QAbstractScrollArea::corner { background-color: white; border: none; }</string>
            <property name="selectionBehavior">
             <enum>QAbstractItemView::SelectionBehavior::SelectRows</enum>
            </property>
+           <property name="iconSize">
+            <size>
+             <width>12</width>
+             <height>12</height>
+            </size>
+           </property>
            <property name="showGrid">
             <bool>false</bool>
            </property>
@@ -1384,9 +1390,26 @@ QToolButton:hover:!pressed:!checked[checkable=&quot;true&quot;] { background-col
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>completeButton</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>onCompleteButtonClicked(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>931</x>
+     <y>377</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>499</x>
+     <y>299</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>openFile()</slot>
   <slot>closeFile()</slot>
+  <slot>onCompleteButtonClicked(bool)</slot>
  </slots>
 </ui>

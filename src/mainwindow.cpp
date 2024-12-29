@@ -19,26 +19,13 @@ MainWindow::MainWindow(
     currSource(QModelIndex()),
     currTarget(QModelIndex())
 {
-    // UI SETUP
     ui->setupUi(this);
 
-    // STATUSBAR SETUP
-    createStatusBar();
-    updateStatusBarInfo();
+    setupActions();
+    setupStatusBar();
+    setupToolBar();
+    setupTableView();
 
-    // ACTIONS & TOOLBAR SETUP
-    createActions();
-    createToolBar();
-
-    // TABLEVIEW SETUP
-    ui->tableView->horizontalHeader()->setSectionResizeMode(
-        QHeaderView::Stretch);
-    ui->tableView->verticalHeader()->setSectionResizeMode(
-        QHeaderView::ResizeToContents);
-    ui->tableView->setModel(translations);
-    ui->tableView->hideColumn(BOUNDS);
-
-    // SLOTS & SIGNALS
     connect(ui->pageView,
             &PageView::canvasZoomChanged,
             this,
@@ -64,7 +51,7 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::createStatusBar()
+void MainWindow::setupStatusBar()
 {
     fileNameLabel = new QLabel("");
     zoomLabel = new QLabel("Zoom: 100%");
@@ -93,13 +80,13 @@ void MainWindow::createStatusBar()
         "QLabel { border: none; outline: none;"
         "color: #828282; font-size: 11px; font-weight: 300; }"
     );
+
+    updateStatusBarVisibility();
 }
 
-void MainWindow::updateStatusBarInfo(QString fileName)
+void MainWindow::updateStatusBarVisibility()
 {
-    fileNameLabel->setText(fileName);
     QWidget *projectInfo = statusBar()->findChild<QWidget *>("projectInfo");
-
     if (!isFileOpened) {
         fileNameLabel->hide();
         projectInfo->hide();
@@ -109,7 +96,7 @@ void MainWindow::updateStatusBarInfo(QString fileName)
     }
 }
 
-void MainWindow::createToolBar()
+void MainWindow::setupToolBar()
 {
     QWidget *spacer = new QWidget();
     spacer->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
@@ -128,7 +115,7 @@ void MainWindow::createToolBar()
     ui->toolBar->addAction(actionSettings);
 }
 
-void MainWindow::createActions()
+void MainWindow::setupActions()
 {
     ui->actionOpen->setShortcut(QKeySequence::Open);
     ui->actionClose->setShortcut(QKeySequence::Close);
@@ -173,6 +160,19 @@ void MainWindow::createActions()
     }
 }
 
+void MainWindow::setupTableView()
+{
+    ui->tableView->setModel(translations);
+    ui->tableView->verticalHeader()->setSectionResizeMode(
+        QHeaderView::ResizeToContents);
+    ui->tableView->horizontalHeader()->setSectionResizeMode(
+        QHeaderView::Stretch);
+    ui->tableView->horizontalHeader()->setSectionResizeMode(COMPLETED,
+                                                            QHeaderView::Fixed);
+    ui->tableView->setColumnWidth(COMPLETED, 24);
+    ui->tableView->hideColumn(BOUNDS);
+}
+
 void MainWindow::openFile()
 {
     QString filePath
@@ -197,7 +197,8 @@ void MainWindow::openFile()
         }
     }
 
-    updateStatusBarInfo(QFileInfo(filePath).fileName());
+    fileNameLabel->setText(QFileInfo(filePath).fileName());
+    updateStatusBarVisibility();
     ui->tableView->setEnabled(true);
     ui->statusFilter->setEnabled(true);
     ui->sourceEdit->setEnabled(true);
@@ -216,9 +217,10 @@ void MainWindow::closeFile()
     ui->pageView->clearPage();
     translations->removeRows(0, translations->rowCount());
     currFilePath = "";
+    progressLabel->setText("Finished: 0%");
     isFileOpened = false;
 
-    updateStatusBarInfo();
+    updateStatusBarVisibility();
     ui->toolBar->setEnabled(false);
     ui->tableView->setEnabled(false);
     ui->statusFilter->setEnabled(false);
@@ -268,12 +270,15 @@ void MainWindow::onSelectionChanged(
         currTarget = QModelIndex();
         ui->sourceEdit->clear();
         ui->targetEdit->clear();
+        ui->completeButton->setChecked(false);
         setInfoDetails(QRect());
     } else {
         currSource = selected.indexes()[TEXT];
         currTarget = selected.indexes()[TRANSLATION];
         ui->sourceEdit->setPlainText(currSource.data().toString());
         ui->targetEdit->setPlainText(currTarget.data().toString());
+        ui->completeButton->setChecked(
+            selected.indexes()[COMPLETED].data().toBool());
         setInfoDetails(selected.indexes()[BOUNDS].data().toRect());
     }
 
@@ -290,5 +295,25 @@ void MainWindow::onTextChanged()
         if (ui->tableView->selectionModel()->isRowSelected(currTarget.row(),
                                                            QModelIndex()))
             translations->setData(currTarget, ui->targetEdit->toPlainText());
+    }
+}
+
+void MainWindow::onCompleteButtonClicked(
+    bool checked)
+{
+    QItemSelection selection = ui->tableView->selectionModel()->selection();
+    if (!selection.isEmpty()) {
+        // update the model
+        translations->setData(selection.indexes().at(COMPLETED), checked);
+        // recalculate progress and update statusbar label
+        int completeCount = 0;
+        for (int row = 0; row < translations->rowCount(); ++row) {
+            completeCount += translations
+                                 ->data(translations->index(row, COMPLETED))
+                                 .toBool();
+        }
+        qreal percent = (qreal) completeCount / translations->rowCount() * 100;
+        progressLabel->setText("Finished: " + QString::number(percent, 'd', 0)
+                               + "%");
     }
 }

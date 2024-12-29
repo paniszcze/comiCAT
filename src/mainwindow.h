@@ -4,6 +4,7 @@
 #include <QAction>
 #include <QActionGroup>
 #include <QCoreApplication>
+#include <QDebug>
 #include <QDir>
 #include <QFileDialog>
 #include <QFileInfo>
@@ -34,10 +35,11 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-    void createActions();
-    void createStatusBar();
-    void updateStatusBarInfo(QString fileName = "");
-    void createToolBar();
+    void setupActions();
+    void setupToolBar();
+    void setupStatusBar();
+    void updateStatusBarVisibility();
+    void setupTableView();
 
 private:
     void setInfoDetails(QRect rect);
@@ -51,6 +53,7 @@ public slots:
     void onSelectionChanged(const QItemSelection &selected,
                             const QItemSelection &deselected);
     void onTextChanged();
+    void onCompleteButtonClicked(bool checked);
 
 public:
     TranslationsModel *translations;
