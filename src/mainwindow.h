@@ -20,6 +20,7 @@
 
 #include "reader.h"
 #include "translationsmodel.h"
+#include "translationsproxy.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -54,9 +55,11 @@ public slots:
                             const QItemSelection &deselected);
     void onTextChanged();
     void onCompleteButtonClicked(bool checked);
+    void onFilterChanged(QString filter);
 
 public:
     TranslationsModel *translations;
+    TranslationsProxy *proxy;
     Reader *reader;
 
     QActionGroup *canvasActions;

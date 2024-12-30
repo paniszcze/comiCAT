@@ -22,6 +22,7 @@ SOURCES += \
     src/reader.cpp \
     src/translationrect.cpp \
     src/translationsmodel.cpp \
+    src/translationsproxy.cpp \
     src/translationsview.cpp
 
 HEADERS += \
@@ -30,6 +31,7 @@ HEADERS += \
     src/reader.h \
     src/translationrect.h \
     src/translationsmodel.h \
+    src/translationsproxy.h \
     src/translationsview.h
 
 FORMS += \

@@ -18,16 +18,16 @@ void TranslationsModel::addTranslation(Translation translation)
     setData(index(row, TRANSLATION), translation.targetText);
     setData(index(row, BOUNDS), translation.bounds);
     setData(index(row, COMPLETED), translation.isCompleted);
-    // setData(index(row, COMPLETED), translation.isCompleted, Qt::DecorationRole);
 }
 
+// TODO: drag'n'dropping of rows in the table view never worked properly,
+//       needs to be fixed (with proxy model in mind!)
 bool TranslationsModel::dropMimeData(const QMimeData *data,
                                      Qt::DropAction action,
                                      int row,
                                      int column,
                                      const QModelIndex &parent)
 {
-    Q_UNUSED(parent);
     Q_UNUSED(column);
 
     if (row == -1) {

@@ -6,6 +6,7 @@ MainWindow::MainWindow(
     QWidget *parent) :
     QMainWindow(parent),
     translations(new TranslationsModel),
+    proxy(new TranslationsProxy),
     reader(new Reader),
     x(0),
     y(0),
@@ -162,7 +163,8 @@ void MainWindow::setupActions()
 
 void MainWindow::setupTableView()
 {
-    ui->tableView->setModel(translations);
+    proxy->setSourceModel(translations);
+    ui->tableView->setModel(proxy);
     ui->tableView->verticalHeader()->setSectionResizeMode(
         QHeaderView::ResizeToContents);
     ui->tableView->horizontalHeader()->setSectionResizeMode(
@@ -287,14 +289,15 @@ void MainWindow::onSelectionChanged(
 
 void MainWindow::onTextChanged()
 {
+    QTableView *view = ui->tableView;
     if (sender() == ui->sourceEdit) {
-        if (ui->tableView->selectionModel()->isRowSelected(currSource.row(),
-                                                           QModelIndex()))
-            translations->setData(currSource, ui->sourceEdit->toPlainText());
+        if (view->selectionModel()->isRowSelected(currSource.row(),
+                                                  QModelIndex()))
+            view->model()->setData(currSource, ui->sourceEdit->toPlainText());
     } else {
-        if (ui->tableView->selectionModel()->isRowSelected(currTarget.row(),
-                                                           QModelIndex()))
-            translations->setData(currTarget, ui->targetEdit->toPlainText());
+        if (view->selectionModel()->isRowSelected(currTarget.row(),
+                                                  QModelIndex()))
+            view->model()->setData(currTarget, ui->targetEdit->toPlainText());
     }
 }
 
@@ -304,7 +307,8 @@ void MainWindow::onCompleteButtonClicked(
     QItemSelection selection = ui->tableView->selectionModel()->selection();
     if (!selection.isEmpty()) {
         // update the model
-        translations->setData(selection.indexes().at(COMPLETED), checked);
+        ui->tableView->model()->setData(selection.indexes().at(COMPLETED),
+                                        checked);
         // recalculate progress and update statusbar label
         int completeCount = 0;
         for (int row = 0; row < translations->rowCount(); ++row) {
@@ -316,4 +320,11 @@ void MainWindow::onCompleteButtonClicked(
         progressLabel->setText("Finished: " + QString::number(percent, 'd', 0)
                                + "%");
     }
+}
+
+void MainWindow::onFilterChanged(
+    QString filter)
+{
+    proxy->filter = filter;
+    proxy->invalidate();
 }
