@@ -12,10 +12,6 @@
 #include <QIcon>
 #include <QLabel>
 #include <QMainWindow>
-#include <QMenuBar>
-#include <QSizePolicy>
-#include <QStatusBar>
-#include <QToolBar>
 #include <QWidget>
 
 #include "reader.h"
@@ -42,9 +38,11 @@ public:
     void updateStatusBarVisibility();
     void setupTableView();
 
-private:
-    void setInfoDetails(QRect rect);
-    void updateInfoBox();
+    void setEnabledEditorPane(bool enabled, bool completed = false);
+    void clearEditorPane();
+    void clearAndDisableEditorPane();
+    void updateRectInfo(QRect rect);
+    void updateProgress();
 
 public slots:
     void openFile();
@@ -62,7 +60,7 @@ public:
     TranslationsProxy *proxy;
     Reader *reader;
 
-    QActionGroup *canvasActions;
+    QActionGroup *tools;
     QAction *actionSelect;
     QAction *actionDirectSelect;
     QAction *actionAdd;
@@ -78,18 +76,13 @@ public:
     QLabel *pageLabel;
     QLabel *progressLabel;
 
-    int x, y, width, height;
-
 private:
     Ui::MainWindow *ui;
 
-    bool isFileOpened;
-    QString currFilePath;
+    bool isFileOpened = false;
+    QString currFilePath = "";
     QDir lastFileDialogDir;
 
-    QAction *currCanvasAction;
-
-    QModelIndex currSource;
-    QModelIndex currTarget;
+    QAction *currTool = nullptr;
 };
 #endif // MAINWINDOW_H

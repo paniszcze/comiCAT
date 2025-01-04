@@ -1,6 +1,7 @@
 #ifndef TRANSLATIONSMODEL_H
 #define TRANSLATIONSMODEL_H
 
+#include <QObject>
 #include <QRect>
 #include <QStandardItemModel>
 #include <QString>
@@ -23,6 +24,8 @@ struct Translation
 
 class TranslationsModel : public QStandardItemModel
 {
+    Q_OBJECT
+
 public:
     explicit TranslationsModel(QObject *parent = nullptr);
     void addTranslation(Translation translation);

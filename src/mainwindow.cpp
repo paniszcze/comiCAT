@@ -2,23 +2,13 @@
 #include "translationrect.h"
 #include "ui_mainwindow.h"
 
-MainWindow::MainWindow(
-    QWidget *parent) :
+MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     translations(new TranslationsModel),
     proxy(new TranslationsProxy),
     reader(new Reader),
-    x(0),
-    y(0),
-    width(0),
-    height(0),
     ui(new Ui::MainWindow),
-    isFileOpened(false),
-    currFilePath(""),
-    lastFileDialogDir(QDir().home()),
-    currCanvasAction(nullptr),
-    currSource(QModelIndex()),
-    currTarget(QModelIndex())
+    lastFileDialogDir(QDir().home())
 {
     ui->setupUi(this);
 
@@ -142,17 +132,17 @@ void MainWindow::setupActions()
     actionSettings = new QAction(QIcon(":/resources/icons/settings.svg"),
                                  "Settings");
 
-    canvasActions = new QActionGroup(this);
-    canvasActions->addAction(actionSelect);
-    canvasActions->addAction(actionDirectSelect);
-    canvasActions->addAction(actionAdd);
-    canvasActions->addAction(actionMerge);
-    canvasActions->addAction(actionSplit);
-    canvasActions->addAction(actionRemove);
-    canvasActions->addAction(actionMove);
-    canvasActions->addAction(actionZoom);
+    tools = new QActionGroup(this);
+    tools->addAction(actionSelect);
+    tools->addAction(actionDirectSelect);
+    tools->addAction(actionAdd);
+    tools->addAction(actionMerge);
+    tools->addAction(actionSplit);
+    tools->addAction(actionRemove);
+    tools->addAction(actionMove);
+    tools->addAction(actionZoom);
 
-    for (auto action : canvasActions->actions()) {
+    for (auto action : tools->actions()) {
         action->setCheckable(true);
         connect(action,
                 &QAction::triggered,
@@ -203,13 +193,9 @@ void MainWindow::openFile()
     updateStatusBarVisibility();
     ui->tableView->setEnabled(true);
     ui->statusFilter->setEnabled(true);
-    ui->sourceEdit->setEnabled(true);
-    ui->targetEdit->setEnabled(true);
-    ui->translateButton->setEnabled(true);
-    ui->completeButton->setEnabled(true);
     ui->toolBar->setEnabled(true);
-    if (!currCanvasAction) currCanvasAction = canvasActions->actions().at(0);
-    currCanvasAction->setChecked(true);
+    if (!currTool) currTool = tools->actions().at(0);
+    currTool->setChecked(true);
 }
 
 void MainWindow::closeFile()
@@ -226,12 +212,11 @@ void MainWindow::closeFile()
     ui->toolBar->setEnabled(false);
     ui->tableView->setEnabled(false);
     ui->statusFilter->setEnabled(false);
-    ui->sourceEdit->setEnabled(false);
-    ui->targetEdit->setEnabled(false);
-    ui->translateButton->setEnabled(false);
-    ui->completeButton->setEnabled(false);
-    currCanvasAction->setChecked(false);
+    clearAndDisableEditorPane();
+    currTool->setChecked(false);
 }
+
+void MainWindow::onCanvasActionChanged() { currTool = tools->checkedAction(); }
 
 void MainWindow::onCanvasZoomChanged(qreal scaleFactor)
 {
@@ -240,91 +225,117 @@ void MainWindow::onCanvasZoomChanged(qreal scaleFactor)
     zoomLabel->setText(text);
 }
 
-void MainWindow::onCanvasActionChanged()
+void MainWindow::updateProgress()
 {
-    currCanvasAction = canvasActions->checkedAction();
+    int count = 0, rows = translations->rowCount();
+    for (int row = 0; row < rows; ++row) {
+        count += translations->data(translations->index(row, COMPLETED))
+                     .toBool();
+    }
+    progressLabel->setText("Finished: "
+                           + QString::number((qreal) count / rows * 100, 'd', 0)
+                           + "%");
 }
 
-void MainWindow::updateInfoBox()
+void MainWindow::onSelectionChanged(const QItemSelection &selected,
+                                    const QItemSelection &deselected)
 {
-    ui->xValueLabel->setText(QString::number(x));
-    ui->yValueLabel->setText(QString::number(y));
-    ui->widthValueLabel->setText(QString::number(width));
-    ui->heightValueLabel->setText(QString::number(height));
-}
+    Q_UNUSED(selected);
+    Q_UNUSED(deselected);
 
-void MainWindow::setInfoDetails(
-    QRect rect)
-{
-    x = rect.left();
-    y = rect.top();
-    width = rect.width();
-    height = rect.height();
-}
-
-void MainWindow::onSelectionChanged(
-    const QItemSelection &selected, const QItemSelection &deselected)
-{
-    if (selected.isEmpty()) {
-        if (deselected.isEmpty()) return;
-
-        currSource = QModelIndex();
-        currTarget = QModelIndex();
-        ui->sourceEdit->clear();
-        ui->targetEdit->clear();
-        ui->completeButton->setChecked(false);
-        setInfoDetails(QRect());
-    } else {
-        currSource = selected.indexes()[TEXT];
-        currTarget = selected.indexes()[TRANSLATION];
-        ui->sourceEdit->setPlainText(currSource.data().toString());
-        ui->targetEdit->setPlainText(currTarget.data().toString());
-        ui->completeButton->setChecked(
-            selected.indexes()[COMPLETED].data().toBool());
-        setInfoDetails(selected.indexes()[BOUNDS].data().toRect());
+    QModelIndexList selection = ui->tableView->selectionModel()
+                                    ->selectedIndexes();
+    if (selection.isEmpty()) {
+        clearAndDisableEditorPane();
+        return;
     }
 
-    updateInfoBox();
+    ui->sourceEdit->setPlainText(selection.at(TEXT).data().toString());
+    ui->targetEdit->setPlainText(selection.at(TRANSLATION).data().toString());
+    ui->completeButton->setChecked(selection.at(COMPLETED).data().toBool());
+    updateRectInfo(selection.at(BOUNDS).data().toRect());
+    setEnabledEditorPane(true, ui->completeButton->isChecked());
 }
 
 void MainWindow::onTextChanged()
 {
-    QTableView *view = ui->tableView;
-    if (sender() == ui->sourceEdit) {
-        if (view->selectionModel()->isRowSelected(currSource.row(),
-                                                  QModelIndex()))
-            view->model()->setData(currSource, ui->sourceEdit->toPlainText());
-    } else {
-        if (view->selectionModel()->isRowSelected(currTarget.row(),
-                                                  QModelIndex()))
-            view->model()->setData(currTarget, ui->targetEdit->toPlainText());
-    }
+    QModelIndexList selection = ui->tableView->selectionModel()
+                                    ->selectedIndexes();
+    if (selection.isEmpty()) return;
+
+    QTextEdit *editor = dynamic_cast<QTextEdit *>(sender());
+    int col = (editor == ui->sourceEdit) ? TEXT : TRANSLATION;
+    ui->tableView->model()->setData(selection.at(col), editor->toPlainText());
 }
 
-void MainWindow::onCompleteButtonClicked(
-    bool checked)
+void MainWindow::onCompleteButtonClicked(bool checked)
 {
-    QItemSelection selection = ui->tableView->selectionModel()->selection();
-    if (!selection.isEmpty()) {
-        // update the model
-        ui->tableView->model()->setData(selection.indexes().at(COMPLETED),
-                                        checked);
-        // recalculate progress and update statusbar label
-        int completeCount = 0;
-        for (int row = 0; row < translations->rowCount(); ++row) {
-            completeCount += translations
-                                 ->data(translations->index(row, COMPLETED))
-                                 .toBool();
-        }
-        qreal percent = (qreal) completeCount / translations->rowCount() * 100;
-        progressLabel->setText("Finished: " + QString::number(percent, 'd', 0)
-                               + "%");
-    }
+    QModelIndexList selection, newSelection;
+
+    selection = ui->tableView->selectionModel()->selection().indexes();
+    if (selection.isEmpty()) return;
+
+    ui->tableView->model()->setData(selection.at(COMPLETED), checked);
+    updateProgress();
+
+    newSelection = ui->tableView->selectionModel()->selection().indexes();
+    if (!newSelection.isEmpty())
+        setEnabledEditorPane(true, newSelection.at(COMPLETED).data().toBool());
 }
 
-void MainWindow::onFilterChanged(
-    QString filter)
+void MainWindow::onFilterChanged(QString filter)
 {
+    QModelIndexList selection, newSelection;
+    QItemSelectionModel *selectionModel = ui->tableView->selectionModel();
+
+    selection = selectionModel->selectedIndexes();
     proxy->filter = filter;
     proxy->invalidate();
+    newSelection = selectionModel->selectedIndexes();
+
+    if (!selection.isEmpty() && newSelection.isEmpty()) {
+        selectionModel->clearSelection();
+        clearAndDisableEditorPane();
+    }
+}
+
+void MainWindow::setEnabledEditorPane(bool enabled, bool completed)
+{
+    bool isEditable = completed ? false : enabled;
+    ui->translateButton->setEnabled(isEditable);
+    ui->sourceEdit->setEnabled(isEditable);
+    ui->targetEdit->setEnabled(isEditable);
+    ui->completeButton->setEnabled(enabled);
+
+    if (!isEditable) {
+        for (auto editor : { ui->sourceEdit, ui->targetEdit }) {
+            QTextCursor cursor = editor->textCursor();
+            if (cursor.hasSelection()) {
+                cursor.clearSelection();
+                editor->setTextCursor(cursor);
+            }
+        }
+    }
+}
+
+void MainWindow::clearEditorPane()
+{
+    ui->sourceEdit->clear();
+    ui->targetEdit->clear();
+    ui->completeButton->setChecked(false);
+    updateRectInfo(QRect());
+}
+
+void MainWindow::clearAndDisableEditorPane()
+{
+    clearEditorPane();
+    setEnabledEditorPane(false);
+}
+
+void MainWindow::updateRectInfo(QRect rect)
+{
+    ui->xValueLabel->setText(QString::number(rect.left()));
+    ui->yValueLabel->setText(QString::number(rect.top()));
+    ui->widthValueLabel->setText(QString::number(rect.width()));
+    ui->heightValueLabel->setText(QString::number(rect.height()));
 }
