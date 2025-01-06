@@ -17,21 +17,16 @@ MainWindow::MainWindow(QWidget *parent) :
     setupToolBar();
     setupTableView();
 
-    connect(ui->pageView,
-            &PageView::canvasZoomChanged,
-            this,
+    connect(ui->pageView, &PageView::canvasZoomChanged, this,
             &MainWindow::onCanvasZoomChanged);
+    connect(translations, &QAbstractItemModel::rowsMoved, this,
+            &MainWindow::onRowsMoved);
     connect(ui->tableView->selectionModel(),
-            &QItemSelectionModel::selectionChanged,
-            this,
+            &QItemSelectionModel::selectionChanged, this,
             &MainWindow::onSelectionChanged);
-    connect(ui->sourceEdit,
-            &QTextEdit::textChanged,
-            this,
+    connect(ui->sourceEdit, &QTextEdit::textChanged, this,
             &MainWindow::onTextChanged);
-    connect(ui->targetEdit,
-            &QTextEdit::textChanged,
-            this,
+    connect(ui->targetEdit, &QTextEdit::textChanged, this,
             &MainWindow::onTextChanged);
 }
 
@@ -113,10 +108,7 @@ void MainWindow::setupActions()
     ui->actionZoomIn->setShortcut(QKeySequence::ZoomIn);
     ui->actionZoomOut->setShortcut(QKeySequence::ZoomOut);
     ui->actionQuit->setShortcut(QKeySequence::Quit);
-    connect(ui->actionQuit,
-            &QAction::triggered,
-            this,
-            &QCoreApplication::quit,
+    connect(ui->actionQuit, &QAction::triggered, this, &QCoreApplication::quit,
             Qt::QueuedConnection);
 
     actionSelect = new QAction(QIcon(":/resources/icons/select.svg"), "Select");
@@ -144,9 +136,7 @@ void MainWindow::setupActions()
 
     for (auto action : tools->actions()) {
         action->setCheckable(true);
-        connect(action,
-                &QAction::triggered,
-                this,
+        connect(action, &QAction::triggered, this,
                 &MainWindow::onCanvasActionChanged);
     }
 }
@@ -167,11 +157,10 @@ void MainWindow::setupTableView()
 
 void MainWindow::openFile()
 {
-    QString filePath
-        = QFileDialog::getOpenFileName(this,
-                                       "Open Image",
-                                       lastFileDialogDir.path(),
-                                       "Image Files (*.png *.jpg *.bmp)");
+    QString filePath =
+        QFileDialog::getOpenFileName(this, "Open Image",
+                                     lastFileDialogDir.path(),
+                                     "Image Files (*.png *.jpg *.bmp)");
     if (filePath.isNull() || filePath == currFilePath) return;
 
     if (isFileOpened) closeFile();
@@ -191,9 +180,11 @@ void MainWindow::openFile()
 
     fileNameLabel->setText(QFileInfo(filePath).fileName());
     updateStatusBarVisibility();
-    ui->tableView->setEnabled(true);
-    ui->statusFilter->setEnabled(true);
-    ui->toolBar->setEnabled(true);
+    if (translations->rowCount() != 0) {
+        ui->tableView->setEnabled(true);
+        ui->statusFilter->setEnabled(true);
+        ui->toolBar->setEnabled(true);
+    }
     if (!currTool) currTool = tools->actions().at(0);
     currTool->setChecked(true);
 }
@@ -235,6 +226,12 @@ void MainWindow::updateProgress()
     progressLabel->setText("Finished: "
                            + QString::number((qreal) count / rows * 100, 'd', 0)
                            + "%");
+}
+
+void MainWindow::onRowsMoved(const QModelIndex &parent, int start, int end,
+                             const QModelIndex &destination, int row)
+{
+    qInfo() << parent << start << end << destination << row;
 }
 
 void MainWindow::onSelectionChanged(const QItemSelection &selected,

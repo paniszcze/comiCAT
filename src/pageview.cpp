@@ -1,7 +1,6 @@
 #include "pageview.h"
 
-PageView::PageView(QWidget *parent)
-    : QGraphicsView(parent)
+PageView::PageView(QWidget *parent) : QGraphicsView(parent)
 {
     setScene(new QGraphicsScene(this));
     grabGesture(Qt::PinchGesture);

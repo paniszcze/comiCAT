@@ -1,10 +1,10 @@
 #ifndef TRANSLATIONSVIEW_H
 #define TRANSLATIONSVIEW_H
 
+#include <QDropEvent>
 #include <QHeaderView>
 #include <QObject>
 #include <QTableView>
-#include <QWidget>
 
 class TranslationsView : public QTableView
 {
@@ -15,6 +15,12 @@ public:
 
 protected:
     QModelIndexList selectedIndexes() const override;
+    void dropEvent(QDropEvent *e) override;
+    void startDrag(Qt::DropActions supportedActions) override;
+
+private:
+    QItemSelection droppedSelection;
+    bool dropAccepted = false;
 };
 
 #endif // TRANSLATIONSVIEW_H

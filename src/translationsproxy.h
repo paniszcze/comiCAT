@@ -13,7 +13,7 @@ public:
     bool filterAcceptsRow(int sourceRow,
                           const QModelIndex &sourceParent) const override;
 
-    QString filter;
+    QString filter = "";
 };
 
 #endif // TRANSLATIONSPROXY_H

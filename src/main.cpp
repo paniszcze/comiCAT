@@ -8,16 +8,13 @@
 class Style : public QProxyStyle
 {
 public:
-    void drawPrimitive(
-        PrimitiveElement element,
-        const QStyleOption *option,
-        QPainter *painter,
-        const QWidget *widget) const
+    void drawPrimitive(PrimitiveElement element, const QStyleOption *option,
+                       QPainter *painter, const QWidget *widget) const
     {
         // Do not draw focus rectangles
         if (element == QStyle::PE_FrameFocusRect) return;
 
-        // Paint drop indicator green
+        // Paint drop indicator green across the entire widget width
         if (element == QStyle::PE_IndicatorItemViewItemDrop
             && !option->rect.isNull())
         {

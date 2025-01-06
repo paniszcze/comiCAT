@@ -49,6 +49,8 @@ public slots:
     void closeFile();
     void onCanvasZoomChanged(qreal percent);
     void onCanvasActionChanged();
+    void onRowsMoved(const QModelIndex &parent, int start, int end,
+                     const QModelIndex &destination, int row);
     void onSelectionChanged(const QItemSelection &selected,
                             const QItemSelection &deselected);
     void onTextChanged();

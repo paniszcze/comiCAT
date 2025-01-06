@@ -6,13 +6,7 @@
 #include <QStandardItemModel>
 #include <QString>
 
-enum ModelHeaders {
-    TEXT,
-    TRANSLATION,
-    BOUNDS,
-    COMPLETED,
-    HEADERS_COUNT
-};
+enum ModelHeaders { TEXT, TRANSLATION, BOUNDS, COMPLETED, HEADERS_COUNT };
 
 struct Translation
 {
@@ -30,10 +24,8 @@ public:
     explicit TranslationsModel(QObject *parent = nullptr);
     void addTranslation(Translation translation);
 
-    virtual bool dropMimeData(const QMimeData *data,
-                              Qt::DropAction action,
-                              int row,
-                              int column,
+    virtual bool dropMimeData(const QMimeData *data, Qt::DropAction action,
+                              int row, int column,
                               const QModelIndex &parent) override;
     virtual Qt::DropActions supportedDropActions() const override;
     virtual Qt::ItemFlags flags(const QModelIndex &index) const override;

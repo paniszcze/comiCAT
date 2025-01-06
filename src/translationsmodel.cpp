@@ -1,7 +1,7 @@
 #include "translationsmodel.h"
 
-TranslationsModel::TranslationsModel(QObject *parent)
-    : QStandardItemModel{parent}
+TranslationsModel::TranslationsModel(QObject *parent) :
+    QStandardItemModel{ parent }
 {
     setColumnCount(HEADERS_COUNT);
     setHeaderData(TEXT, Qt::Horizontal, QObject::tr("Text"));
@@ -20,19 +20,13 @@ void TranslationsModel::addTranslation(Translation translation)
     setData(index(row, COMPLETED), translation.isCompleted);
 }
 
-// TODO: drag'n'dropping of rows in the table view never worked properly,
-//       needs to be fixed (with proxy model in mind!)
 bool TranslationsModel::dropMimeData(const QMimeData *data,
-                                     Qt::DropAction action,
-                                     int row,
-                                     int column,
+                                     Qt::DropAction action, int row, int column,
                                      const QModelIndex &parent)
 {
     Q_UNUSED(column);
 
-    if (row == -1) {
-        row = rowCount();
-    }
+    if (row == -1) row = rowCount();
 
     return QStandardItemModel::dropMimeData(data, action, row, 0, parent);
 }
@@ -49,12 +43,11 @@ Qt::ItemFlags TranslationsModel::flags(const QModelIndex &index) const
                : (QStandardItemModel::flags(index) | Qt::ItemIsDropEnabled);
 }
 
-QVariant TranslationsModel::data(
-    const QModelIndex &index, int role) const
+QVariant TranslationsModel::data(const QModelIndex &index, int role) const
 {
     int col = index.column();
     if (col == COMPLETED && role == Qt::DecorationRole) {
-        if (QStandardItemModel::data(index, Qt::DisplayRole).toBool())
+        if (QStandardItemModel::data(index).toBool())
             return QIcon(":/resources/icons/check.svg");
         else return "";
     }

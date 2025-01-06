@@ -9,7 +9,6 @@
 #include <QRectF>
 #include <QStyle>
 #include <QStyleOptionGraphicsItem>
-#include <QWidget>
 
 static const qreal PEN_WIDTH = 2;
 
@@ -19,8 +18,7 @@ public:
     TranslationRect(const QRect &rect, QGraphicsItem *parent = nullptr);
 
     QRectF boundingRect() const override;
-    void paint(QPainter *painter,
-               const QStyleOptionGraphicsItem *option,
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
                QWidget *widget) override;
 };
 

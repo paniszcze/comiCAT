@@ -1,7 +1,6 @@
 #include "reader.h"
 
-Reader::Reader(QObject *parent)
-    : QObject{parent}
+Reader::Reader(QObject *parent) : QObject{ parent }
 {
     api = new tesseract::TessBaseAPI();
     if (api->Init("/usr/local/share/tessdata", "eng")) {

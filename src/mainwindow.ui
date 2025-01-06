@@ -1468,5 +1468,6 @@ QToolButton:hover:!pressed:!checked[checkable=&quot;true&quot;] { background-col
   <slot>closeFile()</slot>
   <slot>onCompleteButtonClicked(bool)</slot>
   <slot>onFilterChanged(QString)</slot>
+  <slot>onRowsMoved(QModelIndex,int,int,QModelIndex,int)</slot>
  </slots>
 </ui>
