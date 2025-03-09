@@ -6,14 +6,14 @@ CONFIG += c++17
 
 LIBS += \
     -L/opt/homebrew/Cellar/tesseract/5.5.0/lib -ltesseract \
-    -L/opt/homebrew/Cellar/libarchive/3.7.4/lib -larchive \
-    -L/opt/homebrew/Cellar/leptonica/1.84.1/lib -lleptonica \
+    -L/opt/homebrew/Cellar/libarchive/3.7.7/lib -larchive \
+    -L/opt/homebrew/Cellar/leptonica/1.85.0/lib -lleptonica \
     -lcurl
 
 INCLUDEPATH += \
     ./src \
     /opt/homebrew/Cellar/tesseract/5.5.0/include \
-    /opt/homebrew/Cellar/leptonica/1.84.1/include
+    /opt/homebrew/Cellar/leptonica/1.85.0/include
 
 SOURCES += \
     src/main.cpp \
