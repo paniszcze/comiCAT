@@ -22,7 +22,11 @@ class TranslationsModel : public QStandardItemModel
 
 public:
     explicit TranslationsModel(QObject *parent = nullptr);
-    void addTranslation(Translation translation);
+    ~TranslationsModel();
+
+    static TranslationsModel *instance();
+
+    int addTranslation(Translation translation);
 
     virtual bool dropMimeData(const QMimeData *data, Qt::DropAction action,
                               int row, int column,

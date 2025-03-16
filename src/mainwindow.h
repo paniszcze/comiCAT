@@ -14,7 +14,6 @@
 #include <QMainWindow>
 #include <QWidget>
 
-#include "reader.h"
 #include "translationsmodel.h"
 #include "translationsproxy.h"
 
@@ -47,20 +46,22 @@ public:
 public slots:
     void openFile();
     void closeFile();
+
     void onCanvasZoomChanged(qreal percent);
     void onCanvasActionChanged();
-    void onRowsMoved(const QModelIndex &parent, int start, int end,
-                     const QModelIndex &destination, int row);
+
+    void onRowsInserted(const QModelIndex &parent, int first, int last);
     void onSelectionChanged(const QItemSelection &selected,
                             const QItemSelection &deselected);
+
     void onTextChanged();
+
     void onCompleteButtonClicked(bool checked);
     void onFilterChanged(QString filter);
 
 public:
     TranslationsModel *translations;
     TranslationsProxy *proxy;
-    Reader *reader;
 
     QActionGroup *tools;
     QAction *actionSelect;

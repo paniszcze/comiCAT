@@ -1,12 +1,10 @@
 #include "mainwindow.h"
-#include "translationrect.h"
 #include "ui_mainwindow.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     translations(new TranslationsModel),
     proxy(new TranslationsProxy),
-    reader(new Reader),
     ui(new Ui::MainWindow),
     lastFileDialogDir(QDir().home())
 {
@@ -19,8 +17,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(ui->pageView, &PageView::canvasZoomChanged, this,
             &MainWindow::onCanvasZoomChanged);
-    connect(translations, &QAbstractItemModel::rowsMoved, this,
-            &MainWindow::onRowsMoved);
+    connect(translations, &TranslationsModel::rowsInserted, this,
+            &MainWindow::onRowsInserted);
     connect(ui->tableView->selectionModel(),
             &QItemSelectionModel::selectionChanged, this,
             &MainWindow::onSelectionChanged);
@@ -33,7 +31,6 @@ MainWindow::MainWindow(QWidget *parent) :
 MainWindow::~MainWindow()
 {
     delete translations;
-    delete reader;
     delete ui;
 }
 
@@ -170,31 +167,20 @@ void MainWindow::openFile()
     lastFileDialogDir = QDir(filePath);
 
     ui->pageView->loadPage(filePath);
-    QList<Translation> ocrResults = reader->readImg(filePath);
-    if (!ocrResults.empty()) {
-        for (auto &item : ocrResults) {
-            ui->pageView->scene()->addItem(new TranslationRect{item.bounds});
-            translations->addTranslation(item);
-        }
-    }
-
     fileNameLabel->setText(QFileInfo(filePath).fileName());
     updateStatusBarVisibility();
-    if (translations->rowCount() != 0) {
-        ui->tableView->setEnabled(true);
-        ui->statusFilter->setEnabled(true);
-        ui->toolBar->setEnabled(true);
-    }
+
     if (!currTool) currTool = tools->actions().at(0);
     currTool->setChecked(true);
+    ui->toolBar->setEnabled(true);
 }
 
 void MainWindow::closeFile()
 {
     if (!isFileOpened) return;
 
-    ui->pageView->clearPage();
     translations->removeRows(0, translations->rowCount());
+    ui->pageView->clearPage();
     currFilePath = "";
     progressLabel->setText("Finished: 0%");
     isFileOpened = false;
@@ -228,10 +214,16 @@ void MainWindow::updateProgress()
                            + "%");
 }
 
-void MainWindow::onRowsMoved(const QModelIndex &parent, int start, int end,
-                             const QModelIndex &destination, int row)
+void MainWindow::onRowsInserted(const QModelIndex &parent, int first, int last)
 {
-    qInfo() << parent << start << end << destination << row;
+    Q_UNUSED(parent);
+    Q_UNUSED(first);
+    Q_UNUSED(last);
+
+    if (translations->rowCount() > 0) {
+        ui->tableView->setEnabled(true);
+        ui->statusFilter->setEnabled(true);
+    }
 }
 
 void MainWindow::onSelectionChanged(const QItemSelection &selected,
@@ -239,6 +231,8 @@ void MainWindow::onSelectionChanged(const QItemSelection &selected,
 {
     Q_UNUSED(selected);
     Q_UNUSED(deselected);
+
+    ui->pageView->scene()->clearSelection();
 
     QModelIndexList selection = ui->tableView->selectionModel()
                                     ->selectedIndexes();
@@ -252,6 +246,10 @@ void MainWindow::onSelectionChanged(const QItemSelection &selected,
     ui->completeButton->setChecked(selection.at(COMPLETED).data().toBool());
     updateRectInfo(selection.at(BOUNDS).data().toRect());
     setEnabledEditorPane(true, ui->completeButton->isChecked());
+
+    QModelIndex srcIndex = proxy->mapToSource(selection.at(BOUNDS));
+    TranslationRect *rect = ui->pageView->rectDict.value(srcIndex);
+    if (rect) rect->setSelected(true);
 }
 
 void MainWindow::onTextChanged()

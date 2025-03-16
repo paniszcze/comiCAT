@@ -1,8 +1,11 @@
 #include "translationsmodel.h"
 
+static TranslationsModel *modelInstance = nullptr;
+
 TranslationsModel::TranslationsModel(QObject *parent) :
     QStandardItemModel{ parent }
 {
+    modelInstance = this;
     setColumnCount(HEADERS_COUNT);
     setHeaderData(TEXT, Qt::Horizontal, QObject::tr("Text"));
     setHeaderData(TRANSLATION, Qt::Horizontal, QObject::tr("Translation"));
@@ -10,7 +13,11 @@ TranslationsModel::TranslationsModel(QObject *parent) :
     setHeaderData(COMPLETED, Qt::Horizontal, QObject::tr(""));
 }
 
-void TranslationsModel::addTranslation(Translation translation)
+TranslationsModel::~TranslationsModel() { modelInstance = nullptr; }
+
+TranslationsModel *TranslationsModel::instance() { return modelInstance; }
+
+int TranslationsModel::addTranslation(Translation translation)
 {
     int row = rowCount();
     insertRow(row);
@@ -18,6 +25,7 @@ void TranslationsModel::addTranslation(Translation translation)
     setData(index(row, TRANSLATION), translation.targetText);
     setData(index(row, BOUNDS), translation.bounds);
     setData(index(row, COMPLETED), translation.isCompleted);
+    return row;
 }
 
 bool TranslationsModel::dropMimeData(const QMimeData *data,

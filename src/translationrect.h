@@ -15,11 +15,15 @@ static const qreal PEN_WIDTH = 2;
 class TranslationRect : public QGraphicsRectItem
 {
 public:
-    TranslationRect(const QRect &rect, QGraphicsItem *parent = nullptr);
+    TranslationRect(const QRect &rect,
+                    const QPersistentModelIndex &index,
+                    QGraphicsItem *parent = nullptr);
 
     QRectF boundingRect() const override;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
                QWidget *widget) override;
+
+    QPersistentModelIndex index;
 };
 
 #endif // TRANSLATIONRECT_H

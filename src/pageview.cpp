@@ -1,13 +1,72 @@
 #include "pageview.h"
 
-PageView::PageView(QWidget *parent) : QGraphicsView(parent)
+PageView::PageView(QWidget *parent) :
+    QGraphicsView(parent), page(new QGraphicsScene(this)), reader(new Reader)
 {
-    setScene(new QGraphicsScene(this));
+    setScene(page);
     grabGesture(Qt::PinchGesture);
     setAttribute(Qt::WA_AcceptTouchEvents);
+    setMouseTracking(true);
+
+    model = TranslationsModel::instance();
+
+    connect(model, &TranslationsModel::rowsInserted, this,
+            [=](const QModelIndex &, int first, int last) {
+                for (int row = first; row <= last; row++) {
+                    QPersistentModelIndex index = model->index(row, BOUNDS);
+                    TranslationRect *rect = new TranslationRect{
+                        { 0, 0, 0, 0 },
+                        index
+                    };
+                    rectDict.insert(index, rect);
+                    scene()->addItem(rect);
+                }
+            });
+
+    connect(model, &TranslationsModel::dataChanged, this,
+            [=](const QModelIndex &topLeft, const QModelIndex &bottomRight) {
+                if (topLeft.column() == BOUNDS) {
+                    for (int row = topLeft.row(); row <= bottomRight.row();
+                         row++) {
+                        QPersistentModelIndex index = model->index(row, BOUNDS);
+                        TranslationRect *rect = rectDict.value(index);
+                        rect->setRect(
+                            model->data(model->index(row, BOUNDS)).toRect());
+                    }
+                }
+            });
+
+    connect(model, &TranslationsModel::rowsAboutToBeRemoved, this,
+            [=](const QModelIndex &, int first, int last) {
+                for (int row = first; row <= last; row++) {
+                    QPersistentModelIndex index = model->index(row, BOUNDS);
+                    TranslationRect *rect = rectDict.value(index);
+                    scene()->removeItem(rect);
+                    rectDict.remove(index);
+                    delete rect;
+                }
+            });
+
+    // UNUSED SIGNALS
+    // connect(model, &TranslationsModel::rowsRemoved, this,
+    //         [=](const QModelIndex &, int first, int last) {
+    //             qInfo() << "rowsRemoved" << first << last;
+    //         });
+    // connect(model, &TranslationsModel::rowsMoved, this,
+    //         [=](const QModelIndex &, int first, int last) {
+    //             qInfo() << "rowsMoved" << first << last;
+    //         });
+    // connect(model, &TranslationsModel::rowsAboutToBeInserted, this,
+    //         [=](const QModelIndex &, int first, int last) {
+    //             qInfo() << "rowsAboutToBeInserted" << first << last;
+    //         });
+    // connect(model, &TranslationsModel::rowsAboutToBeMoved, this,
+    //         [=](const QModelIndex &, int first, int last) {
+    //             qInfo() << "rowsAboutToBeMoved" << first << last;
+    //         });
 }
 
-PageView::~PageView() {}
+PageView::~PageView() { delete reader; }
 
 void PageView::loadPage(QString filePath)
 {
@@ -31,6 +90,15 @@ void PageView::clearPage()
         currImage = nullptr;
     }
     currFilePath = "";
+}
+
+void PageView::readPage()
+{
+    if (currFilePath.isEmpty()) return;
+
+    QList<Translation> ocrResults = reader->readImg(currFilePath);
+    if (!ocrResults.empty())
+        for (auto &result : ocrResults) model->addTranslation(result);
 }
 
 bool PageView::event(QEvent *event)

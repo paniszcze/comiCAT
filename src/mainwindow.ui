@@ -1158,6 +1158,8 @@ QAbstractScrollArea::corner { background-color: white; border: none; }</string>
     <property name="title">
      <string>Translation</string>
     </property>
+    <addaction name="actionReadPage"/>
+    <addaction name="separator"/>
     <addaction name="actionNext"/>
     <addaction name="actionPrevious"/>
     <addaction name="separator"/>
@@ -1313,6 +1315,14 @@ QToolButton:hover:!pressed:!checked[checkable=&quot;true&quot;] { background-col
     <string>Remove whitespace</string>
    </property>
   </action>
+  <action name="actionReadPage">
+   <property name="text">
+    <string>Read page</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+R</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
@@ -1324,6 +1334,7 @@ QToolButton:hover:!pressed:!checked[checkable=&quot;true&quot;] { background-col
     <slot>resetZoom()</slot>
     <slot>zoomIn()</slot>
     <slot>zoomOut()</slot>
+    <slot>readPage()</slot>
    </slots>
   </customwidget>
   <customwidget>
@@ -1459,6 +1470,22 @@ QToolButton:hover:!pressed:!checked[checkable=&quot;true&quot;] { background-col
     <hint type="destinationlabel">
      <x>499</x>
      <y>299</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionReadPage</sender>
+   <signal>triggered()</signal>
+   <receiver>pageView</receiver>
+   <slot>readPage()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>264</x>
+     <y>302</y>
     </hint>
    </hints>
   </connection>

@@ -1,7 +1,9 @@
 #include "translationrect.h"
 
-TranslationRect::TranslationRect(const QRect &rect, QGraphicsItem *parent) :
-    QGraphicsRectItem(rect, parent)
+TranslationRect::TranslationRect(const QRect &rect,
+                                 const QPersistentModelIndex &index,
+                                 QGraphicsItem *parent) :
+    QGraphicsRectItem(rect, parent), index(index)
 {
     setPen(Qt::NoPen);
     setAcceptedMouseButtons(Qt::LeftButton | Qt::RightButton);
@@ -23,7 +25,9 @@ void TranslationRect::paint(QPainter *painter,
     Q_UNUSED(option);
     Q_UNUSED(widget);
 
-    painter->setPen({isSelected() ? Qt::green : Qt::magenta, PEN_WIDTH});
+    if (rect().isEmpty()) return;
+
+    painter->setPen({ isSelected() ? Qt::green : Qt::magenta, PEN_WIDTH });
     painter->drawRect(
         QRectF(rect().x() - PEN_WIDTH / 2, rect().y() - PEN_WIDTH / 2,
                rect().width() + PEN_WIDTH, rect().height() + PEN_WIDTH));
